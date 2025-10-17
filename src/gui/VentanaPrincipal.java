@@ -1,8 +1,10 @@
 package gui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.LayoutManager;
 import java.awt.Toolkit;
 
 import javax.swing.ImageIcon;
@@ -27,7 +29,7 @@ public class VentanaPrincipal extends JFrame {
 		
 		// Creamos el panel de fondo
 		JLabel panelFondo = new JLabel(new ImageIcon(getClass().getResource("/imagenes/bk.jpg")));
-		panelFondo.setLayout(null); // Eliminamos el Layout automático
+		//panelFondo.setLayout(null); // Eliminamos el Layout automático
 		
 		// Creamos el titulo y posicionamos manualmente
 		JLabel titulo = new JLabel("DeustoChess");
