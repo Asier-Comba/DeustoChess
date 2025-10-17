@@ -75,6 +75,9 @@ public class VentanaPrincipal extends JFrame {
 		exit.setBackground(new Color(0, 123, 255));
 		exit.setOpaque(true);
 		exit.setBorderPainted(false);
+		exit.addActionListener((e)-> {
+			System.exit(0);
+		});
 		
 		// Calculamos la posición del botón basándonos en la imagen
 		int anchoBoton = 200;
