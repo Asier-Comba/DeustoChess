@@ -25,7 +25,7 @@ Las partidas pueden incluir minijuegos, restricciones de turno y poderes especia
 |--------|--------------------|--------------|
 | 👑 **Rector** | *Reunión de urgencia* | En el siguiente turno, el rival solo puede mover Alumnos. |
 | 👸 **Bedel** | *Limpieza general* | Elimina una pieza enemiga visible en línea recta o diagonal sin moverse. |
-| 🧍‍♀️ **Secretaria** | *Reorganizar agenda* | Intercambia la posición de dos piezas aliadas (excepto Alumnos). |
+| 🧍‍♀️ **Secretaria** | *Reorganizar agenda* | Intercambia la posición de dos piezas aliadas (excepto Alumnos y Rector). |
 | 🏪 **Máquina Expendedora** | *Café revitalizante* | Puede intentar dar energía a una pieza aliada mediante un minijuego tipo tragaperras. |
 | 💻 **Becario** | *Corre que no llegas* | Hace dos saltos consecutivos; si come, activa un evento de azar con posibilidad de más movimientos. |
 | 🎓 **Alumno** | *Graduación* | Al llegar al final del tablero, se convierte en Bedel, Secretaria o Becario. |
