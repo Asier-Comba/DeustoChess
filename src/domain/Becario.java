@@ -1,5 +1,7 @@
 package domain;
 
+import javax.swing.JOptionPane;
+
 public class Becario extends Pieza {
 	protected boolean haUsadoHabilidad;
 	protected boolean expediente;
@@ -28,7 +30,8 @@ public class Becario extends Pieza {
 	}
 	@Override
 	public void usarHabilidad(Tablero tablero) {
-		// TODO Auto-generated method stub
-		
+		if (haUsadoHabilidad) {
+		JOptionPane.showMessageDialog(null, "Ya se ha usado la habilidad en este turno");
+		}
 	}
 }

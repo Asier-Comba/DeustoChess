@@ -1,5 +1,7 @@
 package domain;
 
+import javax.swing.JOptionPane;
+
 public class MaquinaExpendedora extends Pieza{
 	protected boolean haUsadoHabilidad;
 	
@@ -32,8 +34,9 @@ public class MaquinaExpendedora extends Pieza{
 
 	@Override
 	public void usarHabilidad(Tablero tablero) {
-		// TODO Auto-generated method stub
-		
+		if (haUsadoHabilidad) {
+			JOptionPane.showMessageDialog(null, "Ya se ha usado la habilidad en este turno");
+		}	
 	}
 
 }
