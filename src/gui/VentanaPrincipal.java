@@ -1,99 +1,96 @@
 package gui;
 
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 
 public class VentanaPrincipal extends JFrame {
 
     private static final long serialVersionUID = 1L;
+    private static JFrame ventanaActual;
 
-    private JFrame ventanaActual, ventanaAnterior;
+    private JPanel pSur, pCentro, pEste, pOeste;
+    private JButton btnCerrarSesion, btnSalir, btn1VS1, btn1vsIA, btnReglas;
+    private JFrame ventanaAnterior;
 
     public VentanaPrincipal(JFrame va) {
         ventanaActual = this;
         ventanaAnterior = va;
 
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        // === CONFIGURACIÓN BÁSICA DE LA VENTANA ===
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("DeustoChess");
-        setExtendedState(MAXIMIZED_BOTH);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         // === CONTENEDOR RAÍZ ===
-        PanelConFondo root = new PanelConFondo("/images/Fondo.png"); //Usamos la funcion de la clase creada para el fondo
+        PanelConFondo root = new PanelConFondo("/images/FondoActualizado.png");
         root.setLayout(new BorderLayout());
         setContentPane(root);
 
-        // === CABECERA (TÍTULO + SUBTÍTULO) ===
-        JPanel header = new JPanel();
-        header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
-        header.setOpaque(false);
-        //header.setBackground(new Color(30, 30, 30));
+        // === CREACIÓN DE PANELES ===
+        pSur = new JPanel();
+        pCentro = new JPanel();
+        pEste = new JPanel();
+        pOeste = new JPanel();
 
-//        JLabel titulo = new JLabel("DeustoChess", SwingConstants.CENTER);
-//        titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
-//        titulo.setFont(new Font(Font.DIALOG, Font.BOLD, 80));
-//        titulo.setForeground(new Color(230, 235, 255));
+        // === CREACIÓN DE BOTONES ===
+        btnCerrarSesion = new JButton("CERRAR SESIÓN");
+        btnSalir = new JButton("SALIR");
+        btn1VS1 = new JButton("1 VS 1");
+        btn1vsIA = new JButton("1 vs IA");
+        btnReglas = new JButton("REGLAS");
 
-        JLabel subtitulo = new JLabel("Elija modo de juego:", SwingConstants.CENTER);
-        subtitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
-        subtitulo.setFont(new Font(Font.SANS_SERIF, Font.BOLD | Font.ITALIC, 30));
-        subtitulo.setForeground(new Color(230, 235, 255));
+        // === LAYOUTS ===
+        pSur.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 10)); // botones centrados y separados
+        pEste.setLayout(new BoxLayout(pEste, BoxLayout.Y_AXIS));   // botones en columna
 
-        header.add(Box.createVerticalStrut(40));
-//        header.add(titulo);
-        header.add(Box.createVerticalStrut(10));
-        header.add(subtitulo);
-        header.add(Box.createVerticalStrut(20));
-        root.add(header, BorderLayout.NORTH);
+        // === COLORES ===
+        Color blancoDeusto = Color.WHITE;
+        pSur.setBackground(blancoDeusto);
+        pEste.setBackground(blancoDeusto);
+        pOeste.setBackground(blancoDeusto);
 
-        // === CENTRO: COLUMNA DE BOTONES CENTRADA VERTICAL/HORIZONTALMENTE ===
-        // Wrapper con GridBagLayout para forzar centrado total
-        JPanel centerWrapper = new JPanel(new GridBagLayout());
-        centerWrapper.setOpaque(false);
-        root.add(centerWrapper, BorderLayout.CENTER);
+        // === DISTRIBUCIÓN ===
+        getContentPane().add(pSur, BorderLayout.SOUTH);
+        getContentPane().add(pEste, BorderLayout.EAST);
+        getContentPane().add(pOeste, BorderLayout.WEST);
+        
 
-        // Columna con BoxLayout en Y
-        JPanel col = new JPanel();
-        col.setOpaque(false);
-        col.setLayout(new BoxLayout(col, BoxLayout.Y_AXIS));
+        // === BOTONES DEL PANEL SUR ===
+        pSur.add(btnCerrarSesion);
+        pSur.add(btnSalir);
 
-        // Botones
-        JButton btn1v1        = crearBoton("1 vs 1");
-        JButton btn1vsIA      = crearBoton("1 vs IA");
-        JButton btnRepet      = crearBoton("Repeticiones");
-        JButton btnSalir      = crearBoton("Salir");
-        JButton btnCerrarSess = crearBoton("Cerrar sesión");
+        // === BOTONES DEL PANEL ESTE ===
+        btn1VS1.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btn1vsIA.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnReglas.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Añadir a la columna con separaciones
-        for (JButton b : new JButton[]{btn1v1, btn1vsIA, btnRepet, btnSalir, btnCerrarSess}) {
-            b.setAlignmentX(Component.CENTER_ALIGNMENT);
-            col.add(Box.createVerticalStrut(15));
-            col.add(b);
-        }
-        col.add(Box.createVerticalStrut(15));
+        // Espaciado vertical entre botones (según práctica 3A.III)
+        pEste.add(Box.createVerticalGlue());
+        pEste.add(btn1VS1);
+        pEste.add(Box.createRigidArea(new Dimension(0, 25)));
+        pEste.add(btn1vsIA);
+        pEste.add(Box.createRigidArea(new Dimension(0, 25)));
+        pEste.add(btnReglas);
+        pEste.add(Box.createVerticalGlue());
 
-        // Insertar la columna centrada
-        centerWrapper.add(col, new GridBagConstraints());
-
-        // === ACCIONES ===
-        btnSalir.addActionListener(e -> System.exit(0));
-        btnCerrarSess.addActionListener(e -> {
-            ventanaActual.setVisible(false);
-            ventanaAnterior.setVisible(true);
+     // === ACCIONES === 
+        btnSalir.addActionListener(e -> System.exit(0)); 
+        
+        btnCerrarSesion.addActionListener(e -> { 
+        
+        	ventanaActual.setVisible(false); ventanaAnterior.setVisible(true);
+        	});
+        
+        btnReglas.addActionListener(e -> {
+          
+            VentanaReglas ventanaReglas = new VentanaReglas();
+            
+            ventanaReglas.setVisible(true);
+ 
         });
-
+        
+        // === HACER VISIBLE ===
         setVisible(true);
     }
-
-    private JButton crearBoton(String texto) {
-        JButton boton = new JButton(texto);
-        boton.setFont(new Font("Arial", Font.BOLD, 24));
-        boton.setForeground(new Color(230, 235, 255));
-        boton.setBackground(new Color(0, 123, 255));
-        boton.setOpaque(true);
-        boton.setBorderPainted(false);
-        boton.setFocusPainted(false);
-        boton.setPreferredSize(new Dimension(260, 60));  // tamaño consistente
-        return boton;
-    }
 }
+
