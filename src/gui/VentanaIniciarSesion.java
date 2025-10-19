@@ -71,9 +71,15 @@ public class VentanaIniciarSesion extends JFrame {
 			}
 		});
 
+		lblUsuario.setFont(new Font(Font.SERIF, Font.BOLD, 20));
+		txtUsuario.setFont(new Font(Font.SERIF, Font.BOLD, 20));
+		lblContrasenia.setFont(new Font(Font.SERIF, Font.BOLD, 20));
+		txtContrasenia.setFont(new Font(Font.SERIF, Font.BOLD, 20));
+		
 		// Acción: crear cuenta (solo placeholder)
 		btnCrearCuenta.addActionListener(e -> {
-			JOptionPane.showMessageDialog(null, "Funcionalidad no implementada aún.");
+			ventanaActual.setVisible(false);
+			new VentanaCrearCuenta(ventanaActual);
 		});
 
 		this.getRootPane().setDefaultButton(btnIniciarSesion);
