@@ -76,6 +76,9 @@ public class VentanaIniciarSesion extends JFrame {
 			JOptionPane.showMessageDialog(null, "Funcionalidad no implementada aún.");
 		});
 
+		this.getRootPane().setDefaultButton(btnIniciarSesion);
+		this.setLocationRelativeTo(null);
+		
 		setVisible(true);
 	}
 

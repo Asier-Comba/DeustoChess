@@ -19,19 +19,20 @@ public class VentanaPrincipal extends JFrame {
         setExtendedState(MAXIMIZED_BOTH);
 
         // === CONTENEDOR RAÍZ ===
-        JPanel root = new JPanel(new BorderLayout());
-        root.setBackground(new Color(30, 30, 30));
+        PanelConFondo root = new PanelConFondo("/images/Fondo.png"); //Usamos la funcion de la clase creada para el fondo
+        root.setLayout(new BorderLayout());
         setContentPane(root);
 
         // === CABECERA (TÍTULO + SUBTÍTULO) ===
         JPanel header = new JPanel();
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
-        header.setBackground(new Color(30, 30, 30));
+        header.setOpaque(false);
+        //header.setBackground(new Color(30, 30, 30));
 
-        JLabel titulo = new JLabel("DeustoChess", SwingConstants.CENTER);
-        titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
-        titulo.setFont(new Font(Font.DIALOG, Font.BOLD, 80));
-        titulo.setForeground(new Color(230, 235, 255));
+//        JLabel titulo = new JLabel("DeustoChess", SwingConstants.CENTER);
+//        titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+//        titulo.setFont(new Font(Font.DIALOG, Font.BOLD, 80));
+//        titulo.setForeground(new Color(230, 235, 255));
 
         JLabel subtitulo = new JLabel("Elija modo de juego:", SwingConstants.CENTER);
         subtitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -39,7 +40,7 @@ public class VentanaPrincipal extends JFrame {
         subtitulo.setForeground(new Color(230, 235, 255));
 
         header.add(Box.createVerticalStrut(40));
-        header.add(titulo);
+//        header.add(titulo);
         header.add(Box.createVerticalStrut(10));
         header.add(subtitulo);
         header.add(Box.createVerticalStrut(20));
@@ -48,12 +49,12 @@ public class VentanaPrincipal extends JFrame {
         // === CENTRO: COLUMNA DE BOTONES CENTRADA VERTICAL/HORIZONTALMENTE ===
         // Wrapper con GridBagLayout para forzar centrado total
         JPanel centerWrapper = new JPanel(new GridBagLayout());
-        centerWrapper.setBackground(new Color(30, 30, 30));
+        centerWrapper.setOpaque(false);
         root.add(centerWrapper, BorderLayout.CENTER);
 
         // Columna con BoxLayout en Y
         JPanel col = new JPanel();
-        col.setBackground(new Color(30, 30, 30));
+        col.setOpaque(false);
         col.setLayout(new BoxLayout(col, BoxLayout.Y_AXIS));
 
         // Botones
