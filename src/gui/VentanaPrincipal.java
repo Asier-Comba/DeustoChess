@@ -64,6 +64,7 @@ public class VentanaPrincipal extends JFrame {
         btn1vsIA.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnReglas.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        
         // Espaciado vertical entre botones (según práctica 3A.III)
         pEste.add(Box.createVerticalGlue());
         pEste.add(btn1VS1);
@@ -72,6 +73,10 @@ public class VentanaPrincipal extends JFrame {
         pEste.add(Box.createRigidArea(new Dimension(0, 25)));
         pEste.add(btnReglas);
         pEste.add(Box.createVerticalGlue());
+        
+        // === ESPACIO ENTRE LOS BOTONES Y LA VENTANA ===
+        pEste.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 60));
+        
 
      // === ACCIONES === 
         btnSalir.addActionListener(e -> System.exit(0)); 
