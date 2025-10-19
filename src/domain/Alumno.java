@@ -6,7 +6,7 @@ public class Alumno extends Pieza{
 	protected boolean expulsion;
 	
 	public Alumno(String nombre, Movimiento movimiento, HabilidadEspecial habilidad, String color, int fila,
-			int columna, boolean haUsadoHabilidad, boolean expediente, boolean expulsion) {
+			int columna, boolean haUsadoHabilidad) {
 		super(nombre, movimiento, habilidad, color, fila, columna);
 		// TODO Auto-generated constructor stub
 	}
@@ -20,27 +20,6 @@ public class Alumno extends Pieza{
 	public void setHaUsadoHabilidad(boolean haUsadoHabilidad) {
 		this.haUsadoHabilidad = haUsadoHabilidad;
 	}
-
-
-	public boolean isExpediente() {
-		return expediente;
-	}
-
-
-	public void setExpediente(boolean expediente) {
-		this.expediente = expediente;
-	}
-
-
-	public boolean isExpulsion() {
-		return expulsion;
-	}
-
-
-	public void setExpulsion(boolean expulsion) {
-		this.expulsion = expulsion;
-	}
-
 
 	@Override
 	public boolean movimientoValido(int nuevaFila, int nuevaColumna, Tablero tablero) {
