@@ -3,6 +3,8 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
 
 public class VentanaCrearCuenta extends JFrame {
 
@@ -42,6 +44,8 @@ public class VentanaCrearCuenta extends JFrame {
 		pCentro.add(lblContrasenia);
 		pCentro.add(txtContrasenia);
 
+		//ImageIcon im = new ImageIcon("/images/LogoDeustoChess.jpg");
+		//setIconImage(im.getImage());
 		JPanel pCentroCentrado = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 60));
 		pCentroCentrado.add(pCentro);
 
@@ -52,10 +56,10 @@ public class VentanaCrearCuenta extends JFrame {
 		pSur.add(btnCrearCuenta);
 		pSur.add(btnVolver);
 		
-		lblUsuario.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-		txtUsuario.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-		lblContrasenia.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-		txtContrasenia.setFont(new Font(Font.SERIF, Font.BOLD, 20));
+		lblUsuario.setFont(new Font("Arial", Font.BOLD, 15));
+		txtUsuario.setFont(new Font("Arial", Font.BOLD, 15));
+		lblContrasenia.setFont(new Font("Arial", Font.BOLD, 15));
+		txtContrasenia.setFont(new Font("Arial", Font.BOLD, 15));
 		
 		
 		// Acción: iniciar sesión
@@ -66,7 +70,15 @@ public class VentanaCrearCuenta extends JFrame {
 
 			}
 		});
-
+		btnCrearCuenta.setBackground(new Color(40, 40, 190));
+		btnVolver.setBackground(new Color(40, 40, 160));
+		btnCrearCuenta.setForeground(Color.white);
+		btnVolver.setForeground(Color.white);
+		btnVolver.setFont(new Font("Arial", Font.BOLD, 15));
+		btnCrearCuenta.setFont(new Font("Arial", Font.BOLD, 15));
+		btnCrearCuenta.setBorder(new EtchedBorder(20));
+		btnVolver.setBorder(new EtchedBorder(20));
+		
 		// Acción: crear cuenta (solo placeholder)
 		btnCrearCuenta.addActionListener(e -> {
 			String nombre = txtUsuario.getText();
