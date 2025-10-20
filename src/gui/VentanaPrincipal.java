@@ -8,7 +8,7 @@ public class VentanaPrincipal extends JFrame {
     private static final long serialVersionUID = 1L;
     private static JFrame ventanaActual;
 
-    private JPanel pSur, pCentro, pEste, pOeste;
+    private JPanel pSur, pEste, pOeste;
     private JButton btnCerrarSesion, btnSalir, btn1VS1, btn1vsIA, btnReglas;
     private JFrame ventanaAnterior;
 
@@ -22,22 +22,53 @@ public class VentanaPrincipal extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         // === CONTENEDOR RAÍZ ===
-        PanelConFondo root = new PanelConFondo("/images/FondoActualizado.png");
+        PanelConFondo root = new PanelConFondo("/images/Fondo.png");
         root.setLayout(new BorderLayout());
         setContentPane(root);
 
         // === CREACIÓN DE PANELES ===
         pSur = new JPanel();
-        pCentro = new JPanel();
+        pSur.setOpaque(false);
         pEste = new JPanel();
+        pEste.setOpaque(false);
         pOeste = new JPanel();
+        pOeste.setOpaque(false);
 
         // === CREACIÓN DE BOTONES ===
         btnCerrarSesion = new JButton("CERRAR SESIÓN");
+        btnCerrarSesion.setFont(new Font("Arial", Font.BOLD, 24));
+        btnCerrarSesion.setForeground(new Color(230, 235, 255));
+        btnCerrarSesion.setBackground(new Color(0, 123, 255));
+        btnCerrarSesion.setOpaque(true);
+        btnCerrarSesion.setBorderPainted(false);
+
         btnSalir = new JButton("SALIR");
+        btnSalir.setFont(new Font("Arial", Font.BOLD, 24));
+        btnSalir.setForeground(new Color(230, 235, 255));
+        btnSalir.setBackground(new Color(0, 123, 255));
+        btnSalir.setOpaque(true);
+        btnSalir.setBorderPainted(false);
+
         btn1VS1 = new JButton("1 VS 1");
+        btn1VS1.setFont(new Font("Arial", Font.BOLD, 24));
+        btn1VS1.setForeground(new Color(230, 235, 255));
+        btn1VS1.setBackground(new Color(0, 123, 255));
+        btn1VS1.setOpaque(true);
+        btn1VS1.setBorderPainted(false);
+        
         btn1vsIA = new JButton("1 vs IA");
+        btn1vsIA.setFont(new Font("Arial", Font.BOLD, 24));
+        btn1vsIA.setForeground(new Color(230, 235, 255));
+        btn1vsIA.setBackground(new Color(0, 123, 255));
+        btn1vsIA.setOpaque(true);
+        btn1vsIA.setBorderPainted(false);
+
         btnReglas = new JButton("REGLAS");
+        btnReglas.setFont(new Font("Arial", Font.BOLD, 24));
+        btnReglas.setForeground(new Color(230, 235, 255));
+        btnReglas.setBackground(new Color(0, 123, 255));
+        btnReglas.setOpaque(true);
+        btnReglas.setBorderPainted(false);
 
         // === LAYOUTS ===
         pSur.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 10)); // botones centrados y separados
@@ -53,11 +84,6 @@ public class VentanaPrincipal extends JFrame {
         getContentPane().add(pSur, BorderLayout.SOUTH);
         getContentPane().add(pEste, BorderLayout.EAST);
         getContentPane().add(pOeste, BorderLayout.WEST);
-        
-
-        // === BOTONES DEL PANEL SUR ===
-        pSur.add(btnCerrarSesion);
-        pSur.add(btnSalir);
 
         // === BOTONES DEL PANEL ESTE ===
         btn1VS1.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -66,16 +92,23 @@ public class VentanaPrincipal extends JFrame {
 
         
         // Espaciado vertical entre botones (según práctica 3A.III)
-        pEste.add(Box.createVerticalGlue());
-        pEste.add(btn1VS1);
-        pEste.add(Box.createRigidArea(new Dimension(0, 25)));
-        pEste.add(btn1vsIA);
-        pEste.add(Box.createRigidArea(new Dimension(0, 25)));
-        pEste.add(btnReglas);
-        pEste.add(Box.createVerticalGlue());
+        pSur.add(Box.createVerticalGlue());
+        pSur.add(btn1VS1);
+        pSur.add(Box.createRigidArea(new Dimension(0, 25)));
+        pSur.add(btn1vsIA);
+        pSur.add(Box.createRigidArea(new Dimension(0, 25)));
+        pSur.add(btnReglas);
+        pSur.add(Box.createRigidArea(new Dimension(0, 25)));
+        pSur.add(btnCerrarSesion);
+        pSur.add(Box.createRigidArea(new Dimension(0, 25)));
+        pSur.add(btnSalir);
+        pSur.add(Box.createRigidArea(new Dimension(0, 25)));
+        pSur.add(Box.createVerticalGlue());
+
+
         
         // === ESPACIO ENTRE LOS BOTONES Y LA VENTANA ===
-        pEste.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 60));
+        pSur.setBorder(BorderFactory.createEmptyBorder(0, 0, 50, 0));
         
 
      // === ACCIONES === 
