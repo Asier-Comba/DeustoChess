@@ -1,20 +1,19 @@
-	package gui;
+package gui;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 public class VentanaCrearCuenta extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	private JButton btnVolver, btnCrearCuenta;
-	private JPanel pNorte, pSur, pCentro;
+	private JButton btnIniciarSesion, btnCrearCuenta;
 	private JTextField txtUsuario;
 	private JPasswordField txtContrasenia;
-	private JLabel lblUsuario, lblContrasenia;
+	private JTextField nomUsuario;
+	private JTextField apellidosUsuario;
 	private JFrame ventanaAnterior, ventanaActual;
 
 	public VentanaCrearCuenta(JFrame va) {
@@ -22,74 +21,200 @@ public class VentanaCrearCuenta extends JFrame {
 		ventanaAnterior = va;
 		// === CREAMOS LA VENTANA ===
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setBounds(400, 200, 450, 350);
+		setSize(500,700);
 		setTitle("Crear cuenta - DeustoChess");
+		setResizable(false);
 		// === VOLVEMOS A PONER EL LOGO ===
 		ImageIcon im = new ImageIcon("img/LogoDeustoChess.png");
 		setIconImage(im.getImage());
 		
-		// === CREAMOS LOS PANELES ===
-		pNorte = new JPanel();
-		pSur = new JPanel();
-		pCentro = new JPanel();
+		// === ESTABLECEMOS FONDO ===
+		PanelConFondo fondo = new PanelConFondo("/images/crearCuenta.jpg");
+		setContentPane(fondo);
+		
+		// === USAMOS LAYOUT NULL PARA POSICIONAMIENTO ABSOLUTO ===
+		fondo.setLayout(null);
 
-		//=== CREAMOS LOS BOTONES ===
-		btnVolver = new JButton("Volver");
-		btnCrearCuenta = new JButton("Crear Cuenta");
-
-		// === CREAMOS LOS JTEXTFIELDS ===
-		txtUsuario = new JTextField(10);
-		txtContrasenia = new JPasswordField(10);
-
-		// === CREAMOS LAS JLABELS ===
-		lblUsuario = new JLabel("Introduce el usuario:");
-		lblContrasenia = new JLabel("Introduce la contraseña:");
-
-		// === AÑADIMOS LOS LABELS Y LOS TEXTFIELDS AL PANEL CENTRO DENTRO DE UN GRIDLAYOUT ===
-		pCentro.setLayout(new GridLayout(2, 2, 10, 10));
-		pCentro.add(lblUsuario);
-		pCentro.add(txtUsuario);
-		pCentro.add(lblContrasenia);
-		pCentro.add(txtContrasenia);
-
+		//=== CREAMOS LOS BOTONES E INICIALIZAMOS TODOS LOS COMPONENTES===
+		btnIniciarSesion = new JButton("");
+		btnCrearCuenta = new JButton("");
+		txtUsuario = new JTextField();
+		txtContrasenia = new JPasswordField();
+		nomUsuario = new JTextField();
+		apellidosUsuario = new JTextField();
+		
+		// === CONFIGURAMOS EL PLACEHOLDER PARA USUARIO ===
+		String placeholderUsuario = "Usuario";
+		txtUsuario.setText(placeholderUsuario); //Esto lo hacemos para que cuando campo = vacio aparezca que espera la aplicación que pongamos ahi
+		txtUsuario.setForeground(Color.gray);
+		// === CENTRAMOS EL TEXTO ===
+		txtUsuario.setHorizontalAlignment(JTextField.CENTER); 
+		txtUsuario.setFont(new Font("Arial", Font.BOLD, 18));
+		// === FONDO TRANSPARENTE ===
+		txtUsuario.setOpaque(false);
+		// === SIN BORDES ===
+		txtUsuario.setBorder(null);
+		
+		txtUsuario.addFocusListener(new FocusAdapter() { //IA GENERATIVA
+			@Override
+			public void focusGained(FocusEvent e) {
+				if (txtUsuario.getText().equals(placeholderUsuario)) {
+					txtUsuario.setText("");
+					txtUsuario.setForeground(Color.BLACK);
+				}
+			}
+			@Override
+			public void focusLost(FocusEvent e) {
+				if (txtUsuario.getText().isEmpty()) {
+					txtUsuario.setForeground(Color.GRAY);
+					txtUsuario.setText(placeholderUsuario);
+				}
+			}
+		});
+		
+		// === CONFIGURACIÓN DEL PLACEHOLDER PARA LA CONTRASEÑA ===
+		String placeholderContra = "Contraseña";
+		// === GUARDAR EL CARÁCTER '•' (IA GENERATIVA) ===
+		char defaultEchoChar = txtContrasenia.getEchoChar(); 
+		txtContrasenia.setText(placeholderContra);
+		txtContrasenia.setForeground(Color.GRAY);
+		txtContrasenia.setEchoChar((char) 0);
+		txtContrasenia.setHorizontalAlignment(JPasswordField.CENTER); 
+		txtContrasenia.setFont(new Font("Arial", Font.BOLD, 18));
+		// === FONDO TRANSPARENTE PARA USAR LA IMAGEN ===
+		txtContrasenia.setOpaque(false); 
+		txtContrasenia.setBorder(null);
+		
+		txtContrasenia.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				String pass = new String(txtContrasenia.getPassword());
+				if (pass.equals(placeholderContra)) {
+					txtContrasenia.setText("");
+					txtContrasenia.setForeground(Color.BLACK);
+					// === OCULTAR TEXTO AL ESCRIBIR (IA GENERATIVA) ===
+					txtContrasenia.setEchoChar(defaultEchoChar); 
+				}
+			}
+			@Override
+			public void focusLost(FocusEvent e) {
+				String pass = new String(txtContrasenia.getPassword());
+				if (pass.isEmpty()) {
+					txtContrasenia.setForeground(Color.GRAY);
+					txtContrasenia.setText(placeholderContra);
+					// === MOSTRAR PLACEHOLDER (IA GENERATIVA) ===
+					txtContrasenia.setEchoChar((char) 0);
+				}
+			}
+		});
+		
+		// === CONFIGURACIÓN DEL PLACEHOLDER PARA EL NOMBRE ===
+		String placeholderNom = "Nombre";
+		nomUsuario.setText(placeholderNom); //Esto lo hacemos para que cuando campo = vacio aparezca que espera la aplicación que pongamos ahi
+		nomUsuario.setForeground(Color.gray);
+		// === CENTRAMOS EL TEXTO ===
+		nomUsuario.setHorizontalAlignment(JTextField.CENTER); 
+		nomUsuario.setFont(new Font("Arial", Font.BOLD, 18));
+		// === FONDO TRANSPARENTE ===
+		nomUsuario.setOpaque(false);
+		// === SIN BORDES ===
+		nomUsuario.setBorder(null);
+		
+		nomUsuario.addFocusListener(new FocusAdapter() { //IA GENERATIVA
+			@Override
+			public void focusGained(FocusEvent e) {
+				if (nomUsuario.getText().equals(placeholderNom)) {
+					nomUsuario.setText("");
+					nomUsuario.setForeground(Color.BLACK);
+				}
+			}
+			@Override
+			public void focusLost(FocusEvent e) {
+				if (nomUsuario.getText().isEmpty()) {
+					nomUsuario.setForeground(Color.GRAY);
+					nomUsuario.setText(placeholderNom);
+				}
+			}
+		});
+		
+		// === CONFIGURACIÓN DEL PLACEHOLDER PARA EL APELLIDO ===
+		String placeholderApe = "Apellidos";
+		apellidosUsuario.setText(placeholderApe); //Esto lo hacemos para que cuando campo = vacio aparezca que espera la aplicación que pongamos ahi
+		apellidosUsuario.setForeground(Color.gray);
+		// === CENTRAMOS EL TEXTO ===
+		apellidosUsuario.setHorizontalAlignment(JTextField.CENTER); 
+		apellidosUsuario.setFont(new Font("Arial", Font.BOLD, 18));
+		// === FONDO TRANSPARENTE ===
+		apellidosUsuario.setOpaque(false);
+		// === SIN BORDES ===
+		apellidosUsuario.setBorder(null);
+		
+		apellidosUsuario.addFocusListener(new FocusAdapter() { //IA GENERATIVA
+			@Override
+			public void focusGained(FocusEvent e) {
+				if (apellidosUsuario.getText().equals(placeholderApe)) {
+					apellidosUsuario.setText("");
+					apellidosUsuario.setForeground(Color.BLACK);
+				}
+			}
+			@Override
+			public void focusLost(FocusEvent e) {
+				if (apellidosUsuario.getText().isEmpty()) {
+					apellidosUsuario.setForeground(Color.GRAY);
+					apellidosUsuario.setText(placeholderApe);
+				}
+			}
+		});
 		
 		
-		JPanel pCentroCentrado = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 60));
-		pCentroCentrado.add(pCentro);
-
-		// === AÑADIMOS LOS PANELES ===
-		getContentPane().add(pSur, BorderLayout.SOUTH);
-		getContentPane().add(pNorte, BorderLayout.NORTH);
-		getContentPane().add(pCentroCentrado, BorderLayout.CENTER);
-
-		// === AÑADIMOS LOS BOTONES AL PANEL SUR ===
-		pSur.add(btnCrearCuenta);
-		pSur.add(btnVolver);
+		/// === CONFIGURACIÓN DEL BOTÓN DE CREAR CUENTA (INVISIBLE) ===
+		btnCrearCuenta.setOpaque(false);
+		btnCrearCuenta.setContentAreaFilled(false);
+		btnCrearCuenta.setBorderPainted(false);
+		btnCrearCuenta.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		
-		// === CAMBIAMOS LOS TIPOS DE LETRA TANTO DE LOS TEXTFIELDS COMO DE LAS LABELS ===
-		lblUsuario.setFont(new Font("Arial", Font.BOLD, 15));
-		txtUsuario.setFont(new Font("Arial", Font.BOLD, 15));
-		lblContrasenia.setFont(new Font("Arial", Font.BOLD, 15));
-		txtContrasenia.setFont(new Font("Arial", Font.BOLD, 15));
+		/// === CONFIGURACIÓN DEL BOTÓN DE INICIAR SESION (INVISIBLE) ===
+		btnIniciarSesion.setOpaque(false);
+		btnIniciarSesion.setContentAreaFilled(false);
+		btnIniciarSesion.setBorderPainted(false);
+		btnIniciarSesion.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		
+		// === POSICIONAR COMPONENTES CON SETBOUNDS ===
+		int startY = 222;
+		int height = 45;
+		int spacing = 10;
+		int yPos = startY;
+
+		nomUsuario.setBounds(80, yPos, 340, height);
+		yPos += height + spacing; 
+		apellidosUsuario.setBounds(80, yPos, 340, height);
+		yPos += height + spacing; 
+		txtUsuario.setBounds(80, yPos, 340, height);
+		yPos += height + spacing;
+		txtContrasenia.setBounds(80, yPos, 340, height);
+		yPos += height + spacing;
+		
+		btnIniciarSesion.setBounds(257, 450, 142, 40); 
+		btnCrearCuenta.setBounds(103, 450, 142, 40);
+
+
+		// ===AÑADIMOS LOS COMPONENTES===
+		fondo.add(nomUsuario);
+		fondo.add(apellidosUsuario);
+		fondo.add(txtUsuario);
+		fondo.add(txtContrasenia);
+		fondo.add(btnIniciarSesion);
+		fondo.add(btnCrearCuenta);
 		
 		
 		// === ACCIÓN INICIAR SESIÓN ===
-		btnVolver.addActionListener(new ActionListener() {
+		btnIniciarSesion.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ventanaActual.setVisible(false); ventanaAnterior.setVisible(true);
 
 			}
 		});
-		// === DECORAMOS UN POCO LOS BOTONES ===
-		btnCrearCuenta.setBackground(new Color(40, 40, 190));
-		btnVolver.setBackground(new Color(40, 40, 160));
-		btnCrearCuenta.setForeground(Color.white);
-		btnVolver.setForeground(Color.white);
-		btnVolver.setFont(new Font("Arial", Font.BOLD, 15));
-		btnCrearCuenta.setFont(new Font("Arial", Font.BOLD, 15));
-		btnCrearCuenta.setBorder(new EtchedBorder(20));
-		btnVolver.setBorder(new EtchedBorder(20));
 		
 		// === ACCIÓN: CREAR CUENTA (SOLO PLACEHOLDER) ===
 		btnCrearCuenta.addActionListener(e -> {
@@ -106,7 +231,7 @@ public class VentanaCrearCuenta extends JFrame {
 			txtContrasenia.setText("");
 			});
 
-		this.getRootPane().setDefaultButton(btnVolver);
+		this.getRootPane().setDefaultButton(btnIniciarSesion);
 		this.setLocationRelativeTo(null);
 		
 		setVisible(true);

@@ -3,7 +3,6 @@ package gui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.Border; // Necesitarás esta importación
 
 public class VentanaInicioSesion extends JFrame {
 
@@ -112,7 +111,10 @@ public class VentanaInicioSesion extends JFrame {
 		txtUsuario.setBounds(80, 332, 340, 45);
 		txtContrasenia.setBounds(80, 387, 340, 45);
 		btnIniciarSesion.setBounds(165, 450, 160, 43);
-		btnCrearCuenta.setBounds(350, 20, 90, 30); 
+		btnCrearCuenta.setBounds(350, 20, 130, 30); 
+		btnCrearCuenta.setForeground(Color.white);
+		btnCrearCuenta.setBackground(new Color(58, 117, 173));
+		
 
 		// === AÑADIR COMPONENTES AL PANEL FONDO ===
 		fondo.add(txtUsuario);
