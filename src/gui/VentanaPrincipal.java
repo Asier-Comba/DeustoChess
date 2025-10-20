@@ -21,6 +21,10 @@ public class VentanaPrincipal extends JFrame {
         setTitle("DeustoChess");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
+        // === AÑADIMOS EL LOGOTIPO DE DEUSTOCHESS ===
+        ImageIcon im = new ImageIcon("img/LogoDeustoChess.png");
+		setIconImage(im.getImage());
+        
         // === CONTENEDOR RAÍZ ===
         PanelConFondo root = new PanelConFondo("/images/Fondo.png");
         root.setLayout(new BorderLayout());

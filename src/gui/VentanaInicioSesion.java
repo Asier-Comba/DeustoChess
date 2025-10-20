@@ -21,28 +21,33 @@ public class VentanaInicioSesion extends JFrame {
 		setSize(500,700);
 		setTitle("Inicio de sesión - DeustoChess");
 		setResizable(false);
-
-		// Establecer el panel de fondo
+		// === METEMOS EL LOGO NUEVAMENTE ===
+		ImageIcon im = new ImageIcon("img/LogoDeustoChess.png");
+		setIconImage(im.getImage());
+		// === ESTABLECER EL PANEL DE FONDO ===
 		PanelConFondo fondo = new PanelConFondo("/images/InicioSesion.png");
 		setContentPane(fondo);
 		
-		// Usar NULL layout para posicionamiento absoluto
+		// === USAR NULL LAYOUT PARA POSICIONAMIENTO ABSOLUTO ===
 		fondo.setLayout(null);
 
-		// Crear componentes
+		// === CREACIÓN DE COMPONENTES ===
 		btnIniciarSesion = new JButton("");
 		btnCrearCuenta = new JButton("Crear Cuenta");
 		txtUsuario = new JTextField(20);
 		txtContrasenia = new JPasswordField(20);
 
-		// --- Configuración del Placeholder para Usuario ---
+		// === CONFIGURACIÓN DEL PLACEHOLDER PARA USUARIO ===
 		String placeholderUsuario = "Usuario";
 		txtUsuario.setText(placeholderUsuario);
 		txtUsuario.setForeground(Color.GRAY);
-		txtUsuario.setHorizontalAlignment(JTextField.CENTER); // Centrar texto
+		// === CENTRAMOS EL TEXTO ===
+		txtUsuario.setHorizontalAlignment(JTextField.CENTER); 
 		txtUsuario.setFont(new Font("Arial", Font.BOLD, 18));
-		txtUsuario.setOpaque(false); // Fondo transparente
-		txtUsuario.setBorder(null); // Sin borde
+		// === FONDO TRANSPARENTE ===
+		txtUsuario.setOpaque(false);
+		// === SIN BORDES ===
+		txtUsuario.setBorder(null);
 
 		txtUsuario.addFocusListener(new FocusAdapter() {
 			@Override
@@ -61,15 +66,17 @@ public class VentanaInicioSesion extends JFrame {
 			}
 		});
 
-		// --- Configuración del Placeholder para Contraseña ---
+		// === CONFIGURACIÓN DEL PLACEHOLDER PARA LA CONTRASEÑA ===
 		String placeholderContra = "Contraseña";
-		char defaultEchoChar = txtContrasenia.getEchoChar(); // Guardar el carácter '•' (IA generativa)
+		// === GUARDAR EL CARÁCTER '•' (IA GENERATIVA) ===
+		char defaultEchoChar = txtContrasenia.getEchoChar(); 
 		txtContrasenia.setText(placeholderContra);
 		txtContrasenia.setForeground(Color.GRAY);
 		txtContrasenia.setEchoChar((char) 0);
 		txtContrasenia.setHorizontalAlignment(JPasswordField.CENTER); 
 		txtContrasenia.setFont(new Font("Arial", Font.BOLD, 18));
-		txtContrasenia.setOpaque(false); // Fondo transparente para usar la imagen
+		// === FONDO TRANSPARENTE PARA USAR LA IMAGEN ===
+		txtContrasenia.setOpaque(false); 
 		txtContrasenia.setBorder(null);
 		
 		txtContrasenia.addFocusListener(new FocusAdapter() {
@@ -79,7 +86,8 @@ public class VentanaInicioSesion extends JFrame {
 				if (pass.equals(placeholderContra)) {
 					txtContrasenia.setText("");
 					txtContrasenia.setForeground(Color.BLACK);
-					txtContrasenia.setEchoChar(defaultEchoChar); // Ocultar texto al escribir (IA generativa)
+					// === OCULTAR TEXTO AL ESCRIBIR (IA GENERATIVA) ===
+					txtContrasenia.setEchoChar(defaultEchoChar); 
 				}
 			}
 			@Override
@@ -88,38 +96,39 @@ public class VentanaInicioSesion extends JFrame {
 				if (pass.isEmpty()) {
 					txtContrasenia.setForeground(Color.GRAY);
 					txtContrasenia.setText(placeholderContra);
-					txtContrasenia.setEchoChar((char) 0); // Mostrar placeholder (IA generativa)
+					// === MOSTRAR PLACEHOLDER (IA GENERATIVA) ===
+					txtContrasenia.setEchoChar((char) 0);
 				}
 			}
 		});
 
-		// --- Configuración del botón de Login (invisible) ---
+		// === CONFIGURACIÓN DEL BOTÓN DE  LOGIN (INVISIBLE) ===
 		btnIniciarSesion.setOpaque(false);
 		btnIniciarSesion.setContentAreaFilled(false);
 		btnIniciarSesion.setBorderPainted(false);
 		btnIniciarSesion.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		
-		// Posicionar componentes con setBounds
+		// === POSICIONAR COMPONENTES CON SETBOUNDS ===
 		txtUsuario.setBounds(80, 332, 340, 45);
 		txtContrasenia.setBounds(80, 387, 340, 45);
 		btnIniciarSesion.setBounds(165, 450, 160, 43);
 		btnCrearCuenta.setBounds(350, 20, 90, 30); 
 
-		// Añadir componentes al panel de fondo
+		// === AÑADIR COMPONENTES AL PANEL FONDO ===
 		fondo.add(txtUsuario);
 		fondo.add(txtContrasenia);
 		fondo.add(btnIniciarSesion);
 		fondo.add(btnCrearCuenta);
 
-		// Añadir listeners
-		// Acción: iniciar sesión
+		// === AÑADIR LISTENERS ===
+		// === ACCIÓN: INICIAR SESIÓN ===
 		btnIniciarSesion.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String nombre = txtUsuario.getText();
 				String contrasenia = new String(txtContrasenia.getPassword());
 
-				// Quitar placeholders de la lógica de login
+				// === QUITAR PLACEHOLDERS DE LA LÓGICA DE LOGIN ===
 				if (nombre.equals(placeholderUsuario)) nombre = "";
 				if (contrasenia.equals(placeholderContra)) contrasenia = "";
 
@@ -131,7 +140,7 @@ public class VentanaInicioSesion extends JFrame {
 					JOptionPane.showMessageDialog(null, "Usuario y/o contraseña incorrectos");
 				}
 
-				// Resetear campos a placeholder
+				// === RESETEAR CAMPOS A PLACEHOLDER ===
 				txtUsuario.setForeground(Color.GRAY);
 				txtUsuario.setText(placeholderUsuario);
 				txtContrasenia.setForeground(Color.GRAY);
@@ -140,7 +149,7 @@ public class VentanaInicioSesion extends JFrame {
 			}
 		});
 		
-		// Acción: crear cuenta
+		// === ACCIÓN: CREAR CUENTA ===
 		btnCrearCuenta.addActionListener(e -> {
 			ventanaActual.setVisible(false);
 			 new VentanaCrearCuenta(ventanaActual); 
