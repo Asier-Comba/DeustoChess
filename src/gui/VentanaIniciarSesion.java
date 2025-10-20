@@ -1,4 +1,4 @@
-	package gui;
+package gui;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -17,11 +17,15 @@ public class VentanaIniciarSesion extends JFrame {
 
 	public VentanaIniciarSesion() {
 		ventanaActual = this;
-
+		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setBounds(400, 200, 450, 350);
+		setSize(500,700);
+		//setBounds(400, 200, 450, 350);
 		setTitle("Inicio de sesión - DeustoChess");
 
+		PanelConFondo fondo = new PanelConFondo("/images/InicioSesion.png");
+		setContentPane(fondo);
+		
 		pNorte = new JPanel();
 		pSur = new JPanel();
 		pCentro = new JPanel();
@@ -71,10 +75,10 @@ public class VentanaIniciarSesion extends JFrame {
 			}
 		});
 
-		lblUsuario.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-		txtUsuario.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-		lblContrasenia.setFont(new Font(Font.SERIF, Font.BOLD, 20));
-		txtContrasenia.setFont(new Font(Font.SERIF, Font.BOLD, 20));
+		lblUsuario.setFont(new Font("Arial", Font.BOLD, 15));
+		txtUsuario.setFont(new Font("Arial", Font.BOLD, 15));
+		lblContrasenia.setFont(new Font("Arial", Font.BOLD, 15));
+		txtContrasenia.setFont(new Font("Arial", Font.BOLD, 15));
 		
 		// Acción: crear cuenta (solo placeholder)
 		btnCrearCuenta.addActionListener(e -> {
