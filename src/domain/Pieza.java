@@ -5,7 +5,7 @@ public abstract class  Pieza {
 	protected Movimiento movimiento;
 	protected HabilidadEspecial habilidad;
 	
-	protected String color;
+	protected Color color;
 	protected int fila;
 	protected int columna;
 	
@@ -18,7 +18,7 @@ public abstract class  Pieza {
     }
 	
 	
-	public Pieza(String nombre, Movimiento movimiento, HabilidadEspecial habilidad, String color, int fila,
+	public Pieza(String nombre, Movimiento movimiento, HabilidadEspecial habilidad, Color color, int fila,
 			int columna) {
 		super();
 		this.nombre = nombre;
@@ -47,10 +47,10 @@ public abstract class  Pieza {
 	public void setHabilidad(HabilidadEspecial habilidad) {
 		this.habilidad = habilidad;
 	}
-	public String getColor() {
+	public Color getColor() {
 		return color;
 	}
-	public void setColor(String color) {
+	public void setColor(Color color) {
 		this.color = color;
 	}
 	public int getFila() {

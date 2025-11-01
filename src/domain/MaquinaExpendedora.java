@@ -5,7 +5,7 @@ import javax.swing.JOptionPane;
 public class MaquinaExpendedora extends Pieza{
 	protected boolean haUsadoHabilidad;
 	
-	public MaquinaExpendedora(String nombre, Movimiento movimiento, HabilidadEspecial habilidad, String color, int fila,
+	public MaquinaExpendedora(String nombre, Movimiento movimiento, HabilidadEspecial habilidad, Color color, int fila,
 			int columna, boolean haUsadoHabilidad) {
 		super(nombre, movimiento, habilidad, color, fila, columna);
 		this.haUsadoHabilidad = haUsadoHabilidad;

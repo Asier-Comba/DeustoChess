@@ -7,7 +7,7 @@ public class Secretaria extends Pieza {
 	protected boolean expediente;
 	protected boolean expulsion;
 	
-	public Secretaria(String nombre, Movimiento movimiento, HabilidadEspecial habilidad, String color, int fila,
+	public Secretaria(String nombre, Movimiento movimiento, HabilidadEspecial habilidad, Color color, int fila,
 			int columna, boolean haUsadoHabilidad) {
 		super(nombre, movimiento, habilidad, color, fila, columna);
 		// TODO Auto-generated constructor stub

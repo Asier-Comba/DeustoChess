@@ -7,7 +7,7 @@ public class Bedel extends Pieza{
 	protected boolean expediente;
 	protected boolean expulsion;
 	
-	public Bedel(String nombre, Movimiento movimiento, HabilidadEspecial habilidad, String color, int fila,
+	public Bedel(String nombre, Movimiento movimiento, HabilidadEspecial habilidad, Color color, int fila,
 			int columna, boolean haUsadoHabilidad) {
 		super(nombre, movimiento, habilidad, color, fila, columna);
 		// TODO Auto-generated constructor stub

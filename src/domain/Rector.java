@@ -7,7 +7,7 @@ public class Rector extends Pieza{
 	protected boolean expediente;
 	protected boolean expulsion;
 	
-	public Rector(String nombre, Movimiento movimiento, HabilidadEspecial habilidad, String color, int fila,
+	public Rector(String nombre, Movimiento movimiento, HabilidadEspecial habilidad, Color color, int fila,
 			int columna, boolean haUsadoHabilidad, boolean expediente, boolean expulsion) {
 		super(nombre, movimiento, habilidad, color, fila, columna);
 		this.haUsadoHabilidad = haUsadoHabilidad;
