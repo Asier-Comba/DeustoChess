@@ -32,7 +32,7 @@ public class VentanaCrearCuenta extends JFrame {
 		PanelConFondo fondo = new PanelConFondo("/images/crearCuenta.jpg");
 		setContentPane(fondo);
 		
-		// === USAMOS LAYOUT NULL PARA POSICIONAMIENTO ABSOLUTO ===
+		// === USAMOS LAYOUT NULL PARA POSICIONAMIENTO CON SETBOUNDS ===
 		fondo.setLayout(null);
 
 		//=== CREAMOS LOS BOTONES E INICIALIZAMOS TODOS LOS COMPONENTES===
@@ -45,7 +45,7 @@ public class VentanaCrearCuenta extends JFrame {
 		
 		// === CONFIGURAMOS EL PLACEHOLDER PARA USUARIO ===
 		String placeholderUsuario = "Usuario";
-		txtUsuario.setText(placeholderUsuario); //Esto lo hacemos para que cuando campo = vacio aparezca que espera la aplicación que pongamos ahi
+		txtUsuario.setText(placeholderUsuario); //Esto lo hacemos para que cuando campo = vacio aparezca lo que espera la aplicación que pongamos ahi
 		txtUsuario.setForeground(Color.gray);
 		// === CENTRAMOS EL TEXTO ===
 		txtUsuario.setHorizontalAlignment(JTextField.CENTER); 

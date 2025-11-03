@@ -47,7 +47,8 @@ public class VentanaInicioSesion extends JFrame {
 		txtUsuario.setOpaque(false);
 		// === SIN BORDES ===
 		txtUsuario.setBorder(null);
-
+		
+		// === FUNCIÓN BLOQUES USUARIO Y CONTRASEÑA ===
 		txtUsuario.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -101,7 +102,6 @@ public class VentanaInicioSesion extends JFrame {
 			}
 		});
 
-		// === CONFIGURACIÓN DEL BOTÓN DE  LOGIN (INVISIBLE) ===
 		btnIniciarSesion.setOpaque(false);
 		btnIniciarSesion.setContentAreaFilled(false);
 		btnIniciarSesion.setBorderPainted(false);
@@ -130,7 +130,6 @@ public class VentanaInicioSesion extends JFrame {
 				String nombre = txtUsuario.getText();
 				String contrasenia = new String(txtContrasenia.getPassword());
 
-				// === QUITAR PLACEHOLDERS DE LA LÓGICA DE LOGIN ===
 				if (nombre.equals(placeholderUsuario)) nombre = "";
 				if (contrasenia.equals(placeholderContra)) contrasenia = "";
 
@@ -142,7 +141,6 @@ public class VentanaInicioSesion extends JFrame {
 					JOptionPane.showMessageDialog(null, "Usuario y/o contraseña incorrectos");
 				}
 
-				// === RESETEAR CAMPOS A PLACEHOLDER ===
 				txtUsuario.setForeground(Color.GRAY);
 				txtUsuario.setText(placeholderUsuario);
 				txtContrasenia.setForeground(Color.GRAY);
