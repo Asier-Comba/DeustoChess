@@ -131,6 +131,12 @@ public class VentanaPrincipal extends JFrame {
  
         });
         
+        btn1VS1.addActionListener(e -> {
+            ventanaActual.setVisible(false);
+            new PanelTablero(ventanaActual);
+        });
+        
+        
         // === HACER VISIBLE ===
         setVisible(true);
     }
