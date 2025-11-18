@@ -8,9 +8,17 @@ import javax.swing.table.DefaultTableModel;
 import domain.Partida;
 
 
+
 public class ModeloTabla extends DefaultTableModel{
 private List<Partida> partidas;
 private List<String> titulos = Arrays.asList("JUGADOR", "ID JUGADOR", "GANADAS", "PERDIDAS");
+
+public ModeloTabla(List<Partida> partidas) {
+	this.partidas = partidas;
+}
+
+
+
 	@Override
 	public int getRowCount() {
 		if (titulos == null) {

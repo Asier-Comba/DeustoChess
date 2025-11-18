@@ -9,7 +9,7 @@ public class VentanaPrincipal extends JFrame {
     private static JFrame ventanaActual;
 
     private JPanel pSur, pEste, pOeste;
-    private JButton btnCerrarSesion, btnSalir, btn1VS1, btn1vsIA, btnReglas;
+    private JButton btnCerrarSesion, btnSalir, btn1VS1, btn1vsIA, btnReglas, btnHistorial;
     private JFrame ventanaAnterior;
 
     public VentanaPrincipal(JFrame va) {
@@ -74,6 +74,13 @@ public class VentanaPrincipal extends JFrame {
         btnReglas.setOpaque(true);
         btnReglas.setBorderPainted(false);
 
+        btnHistorial = new JButton("HISTORIAL");
+        btnHistorial.setFont(new Font("Arial", Font.BOLD, 24));
+        btnHistorial.setForeground(new Color(230, 235, 255));
+        btnHistorial.setBackground(new Color(0, 123, 255));
+        btnHistorial.setOpaque(true);
+        btnHistorial.setBorderPainted(false);
+        
         // === LAYOUTS ===
         pSur.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 10)); // botones centrados y separados
         pEste.setLayout(new BoxLayout(pEste, BoxLayout.Y_AXIS));   // botones en columna
@@ -102,6 +109,8 @@ public class VentanaPrincipal extends JFrame {
         pSur.add(btn1vsIA);
         pSur.add(Box.createRigidArea(new Dimension(0, 25)));
         pSur.add(btnReglas);
+        pSur.add(Box.createRigidArea(new Dimension(0, 25)));
+        pSur.add(btnHistorial);
         pSur.add(Box.createRigidArea(new Dimension(0, 25)));
         pSur.add(btnCerrarSesion);
         pSur.add(Box.createRigidArea(new Dimension(0, 25)));
@@ -136,9 +145,15 @@ public class VentanaPrincipal extends JFrame {
             new PanelTablero(ventanaActual);
         });
         
+        btnHistorial.addActionListener(e ->{
+        	// Hay que ejecutar el historial 
+        });
+        
         
         // === HACER VISIBLE ===
         setVisible(true);
     }
+   
 }
+
 
