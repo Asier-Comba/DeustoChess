@@ -154,7 +154,7 @@ public class PanelTablero extends JFrame {
             if (ventanaAnterior != null) {
                 ventanaAnterior.dispose(); 
             }
-            
+           
             new VentanaInicioSesion(); 
         });
 

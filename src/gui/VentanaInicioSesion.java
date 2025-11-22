@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import bd.ConexionBD;
+
 public class VentanaInicioSesion extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -12,10 +14,11 @@ public class VentanaInicioSesion extends JFrame {
 	private JTextField txtUsuario;
 	private JPasswordField txtContrasenia;
 	private JFrame ventanaActual;
-
+//	private ConexionBD bd;
+	
 	public VentanaInicioSesion() {
 		ventanaActual = this;
-		
+		//this.bd = bd;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setSize(500,700);
 		setTitle("Inicio de sesión - DeustoChess");

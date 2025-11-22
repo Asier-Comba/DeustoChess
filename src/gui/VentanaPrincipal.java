@@ -3,6 +3,8 @@ package gui;
 import java.awt.*;
 import javax.swing.*;
 
+import bd.ConexionBD;
+
 public class VentanaPrincipal extends JFrame {
 
     private static final long serialVersionUID = 1L;
@@ -11,10 +13,12 @@ public class VentanaPrincipal extends JFrame {
     private JPanel pSur, pEste, pOeste;
     private JButton btnCerrarSesion, btnSalir, btn1VS1, btn1vsIA, btnReglas, btnHistorial;
     private JFrame ventanaAnterior;
+    //private ConexionBD bd;
 
     public VentanaPrincipal(JFrame va) {
         ventanaActual = this;
         ventanaAnterior = va;
+      //  this.bd = bd;
 
         // === CONFIGURACIÓN BÁSICA DE LA VENTANA ===
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -146,7 +150,8 @@ public class VentanaPrincipal extends JFrame {
         });
         
         btnHistorial.addActionListener(e ->{
-        	// Hay que ejecutar el historial 
+        	ventanaActual.setVisible(false);
+        	new TablaHistorial(ventanaActual);
         });
         
         
