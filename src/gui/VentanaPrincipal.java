@@ -63,13 +63,6 @@ public class VentanaPrincipal extends JFrame {
         btn1VS1.setBackground(new Color(0, 123, 255));
         btn1VS1.setOpaque(true);
         btn1VS1.setBorderPainted(false);
-        
-        btn1vsIA = new JButton("1 vs IA");
-        btn1vsIA.setFont(new Font("Arial", Font.BOLD, 24));
-        btn1vsIA.setForeground(new Color(230, 235, 255));
-        btn1vsIA.setBackground(new Color(0, 123, 255));
-        btn1vsIA.setOpaque(true);
-        btn1vsIA.setBorderPainted(false);
 
         btnReglas = new JButton("REGLAS");
         btnReglas.setFont(new Font("Arial", Font.BOLD, 24));
@@ -102,15 +95,12 @@ public class VentanaPrincipal extends JFrame {
 
         // === BOTONES DEL PANEL ESTE ===
         btn1VS1.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btn1vsIA.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnReglas.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         
         // Espaciado vertical entre botones (según práctica 3A.III)
         pSur.add(Box.createVerticalGlue());
         pSur.add(btn1VS1);
-        pSur.add(Box.createRigidArea(new Dimension(0, 25)));
-        pSur.add(btn1vsIA);
         pSur.add(Box.createRigidArea(new Dimension(0, 25)));
         pSur.add(btnReglas);
         pSur.add(Box.createRigidArea(new Dimension(0, 25)));
