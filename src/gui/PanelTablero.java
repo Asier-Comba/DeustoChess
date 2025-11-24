@@ -42,7 +42,7 @@ public class PanelTablero extends JFrame {
         Color colorFondoAzul = new Color(0, 123, 255); 
         Color colorTexto = new Color(230, 235, 255); 
         
-        // --- ESTILO BÁSICO DE BOTONES ---
+        // === ESTILO BÁSICO DE BOTONES ===
         Font buttonFont = new Font("Arial", Font.BOLD, 14);
 
         // === PANEL NORTE DONDE IRÁN LOGO Y BOTONES ===
@@ -109,7 +109,7 @@ public class PanelTablero extends JFrame {
         centro.setOpaque(false);
         
         JPanel tablero = new JPanel(new GridLayout(8, 8));
-        tablero.setPreferredSize(new Dimension(850, 850)); 
+        tablero.setPreferredSize(new Dimension(725, 725)); 
         
         for (int i = 7; i >= 0; i--) { 
             for (int j = 0; j <= 7; j++) { 
