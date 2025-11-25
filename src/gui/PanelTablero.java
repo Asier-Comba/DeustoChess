@@ -26,6 +26,7 @@ import domain.Becario;
 import domain.Casilla;
 import domain.MaquinaExpendedora;
 import domain.Pieza;
+import domain.Secretaria;
 import domain.Tablero;
 
 public class PanelTablero extends JFrame {
@@ -285,7 +286,7 @@ public class PanelTablero extends JFrame {
         
         if (p != null) {
             lblPiezaSeleccionada.setText(p.getNombre() + " (" + p.getColor() + ")");
-            if (p instanceof Becario || p instanceof MaquinaExpendedora) {
+            if (p instanceof Becario || p instanceof MaquinaExpendedora || p instanceof Secretaria) {
                 btnUsarHabilidad.setEnabled(true);
                 btnUsarHabilidad.setText("USAR: " + p.getNombre());
             } else {
@@ -316,7 +317,15 @@ public class PanelTablero extends JFrame {
                      actualizarTablero();
                 }
             );
-        }
+        } else if (p instanceof Secretaria) {
+            ((Secretaria) p).usarHabilidad(tableroLogico,
+                    (texto) -> SwingUtilities.invokeLater(() -> lblPantallaMaquina.setText(texto)),
+                    () -> {
+                         btnUsarHabilidad.setEnabled(true);
+                         actualizarTablero(); 
+                    }
+                );
+            }
     }
 
     private void actualizarTablero() {
