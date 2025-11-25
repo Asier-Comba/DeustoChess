@@ -1,4 +1,4 @@
-						package gui;
+package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -7,6 +7,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.net.URL;
 
 import javax.swing.BorderFactory;
@@ -34,14 +36,11 @@ public class PanelTablero extends JFrame {
     private static final long serialVersionUID = 1L;
     private JFrame ventanaAnterior;
     
-    // === MODELO Y ESTADO ===
     private Tablero tableroLogico;
     private Casilla casillaSeleccionada; 
     
-    // === COMPONENTES VISUALES ===
     private JButton[][] botonesCasillas;
     
-    // === COMPONENTES PANEL IZQUIERDO ===
     private JLabel lblPiezaSeleccionada;
     private JLabel lblPantallaMaquina; 
     private JButton btnUsarHabilidad;
@@ -60,18 +59,16 @@ public class PanelTablero extends JFrame {
         main.setLayout(new BorderLayout());
         setContentPane(main);
 
-        // === COLORES ===
         Color colorAzulDeusto = new Color(58, 117, 173); 
         Color colorFondoAzul = new Color(0, 123, 255); 
         Color colorTexto = new Color(230, 235, 255); 
         Font buttonFont = new Font("Arial", Font.BOLD, 14);
 
-        // === LOGO Y BOTONES DE SESIÓN ===
+        // NORTE
         JPanel norte = new JPanel(new BorderLayout());
         norte.setOpaque(false);
         norte.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); 
         
-        // === LOGO ===
         JPanel logoTitulo = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
         logoTitulo.setOpaque(false);
         
@@ -89,7 +86,6 @@ public class PanelTablero extends JFrame {
         logoTitulo.add(lblTitulo);
         norte.add(logoTitulo, BorderLayout.WEST);
 
-        // === CONTROL DE SESIÓN ===
         JPanel botonesVentana = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10)); 
         botonesVentana.setOpaque(false);
         
@@ -109,19 +105,45 @@ public class PanelTablero extends JFrame {
         
         main.add(norte, BorderLayout.NORTH);
                 
-        // === PANEL HABILIDADES ===
         JPanel panelIzquierdo = crearPanelIzquierdo(colorFondoAzul, colorTexto);
         main.add(panelIzquierdo, BorderLayout.WEST);
         
-        // === LOGS Y CONTROLES ===
         JPanel panelDerecho = crearPanelLateral(colorFondoAzul, colorTexto);
         main.add(panelDerecho, BorderLayout.EAST);
 
-        // === TABLERO ===
+        // TABLERO CON COORDENADAS
         JPanel centro = new JPanel(new FlowLayout(FlowLayout.CENTER));
         centro.setOpaque(false);
         centro.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
+        // Panel contenedor para tablero y coordenadas
+        JPanel contenedorTablero = new JPanel(new BorderLayout(5, 5));
+        contenedorTablero.setOpaque(false);
+        
+        // Números a la IZQUIERDA (8 a 1, de arriba abajo)
+        JPanel panelNumeros = new JPanel(new GridLayout(8, 1));
+        panelNumeros.setOpaque(false);
+        panelNumeros.setPreferredSize(new Dimension(30, 725));
+        for (int i = 8; i >= 1; i--) {
+            JLabel lblNum = new JLabel(String.valueOf(i), JLabel.CENTER);
+            lblNum.setFont(new Font("Arial", Font.BOLD, 20));
+            lblNum.setForeground(Color.BLACK);
+            panelNumeros.add(lblNum);
+        }
+        
+        // Letras ABAJO (A a H)
+        JPanel panelLetras = new JPanel(new GridLayout(1, 8));
+        panelLetras.setOpaque(false);
+        panelLetras.setPreferredSize(new Dimension(725, 30));
+        String[] letras = {"A", "B", "C", "D", "E", "F", "G", "H"};
+        for (String letra : letras) {
+            JLabel lblLetra = new JLabel(letra, JLabel.CENTER);
+            lblLetra.setFont(new Font("Arial", Font.BOLD, 20));
+            lblLetra.setForeground(Color.BLACK);
+            panelLetras.add(lblLetra);
+        }
+        
+        // Tablero
         JPanel tableroVisual = new JPanel(new GridLayout(8, 8));
         tableroVisual.setPreferredSize(new Dimension(725, 725)); 
         
@@ -133,14 +155,18 @@ public class PanelTablero extends JFrame {
                 casilla.setBackground(colorCasilla);
                 casilla.setOpaque(true);
                 
-                // === AJUSTES VISUALES ===
                 casilla.setBorder(null);
-                casilla.setFocusPainted(false); //IA generativa (quitamos los bordes de los botones)
+                casilla.setFocusPainted(false);
                 
                 final int fila = i;
                 final int col = j;
                 
-                casilla.addActionListener(e -> seleccionarCasilla(fila, col));
+                casilla.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        seleccionarCasilla(fila, col);
+                    }
+                });
                 
                 botonesCasillas[i][j] = casilla;
                 tableroVisual.add(casilla);
@@ -149,30 +175,45 @@ public class PanelTablero extends JFrame {
         
         actualizarTablero();
         
-        centro.add(tableroVisual);
+        // Añadir componentes al contenedor
+        contenedorTablero.add(panelNumeros, BorderLayout.WEST);
+        contenedorTablero.add(tableroVisual, BorderLayout.CENTER);
+        contenedorTablero.add(panelLetras, BorderLayout.SOUTH);
+        
+        centro.add(contenedorTablero);
         main.add(centro, BorderLayout.CENTER);
         
-        // === ACCIONES BOTONES SUPERIORES ===
-        btnSalir.addActionListener(e -> System.exit(0));
-        
-        btnVolverMenu.addActionListener(e -> {
-            if (ventanaAnterior != null) ventanaAnterior.setVisible(true);
-            setVisible(false);
-            dispose(); //IA generativa, cerramos la ventana y ahorramos recursos
+        // ACCIONES
+        btnSalir.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
         });
         
-        btnCerrarSesion.addActionListener(e -> {
-            setVisible(false);
-            dispose();
-            if (ventanaAnterior != null) ventanaAnterior.dispose(); 
-            new VentanaInicioSesion(); 
+        btnVolverMenu.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (ventanaAnterior != null) ventanaAnterior.setVisible(true);
+                setVisible(false);
+                dispose();
+            }
+        });
+        
+        btnCerrarSesion.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setVisible(false);
+                dispose();
+                if (ventanaAnterior != null) ventanaAnterior.dispose(); 
+                new VentanaInicioSesion(); 
+            }
         });
 
         setLocationRelativeTo(null); 
         setVisible(true);
     }
     
-    // === PANEL HABILIDADES ===
     private JPanel crearPanelIzquierdo(Color fondo, Color texto) {
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -204,9 +245,13 @@ public class PanelTablero extends JFrame {
         btnUsarHabilidad.setAlignmentX(JButton.CENTER_ALIGNMENT);
         btnUsarHabilidad.setEnabled(false);
         
-        btnUsarHabilidad.addActionListener(e -> ejecutarHabilidadEspecial());
+        btnUsarHabilidad.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ejecutarHabilidadEspecial();
+            }
+        });
 
-        //IA generativa: le damos una mejor visualización
         p.add(lblTitulo);
         p.add(new JSeparator());
         p.add(Box.createVerticalStrut(20));
@@ -220,7 +265,6 @@ public class PanelTablero extends JFrame {
         return p;
     }
 
-    // === LOGS Y CONTROLES ===
     private JPanel crearPanelLateral(Color fondo, Color frente) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(fondo);
@@ -254,7 +298,6 @@ public class PanelTablero extends JFrame {
         JScrollPane scroll = new JScrollPane(logArea);
         panel.add(scroll, BorderLayout.CENTER);
 
-        // Controles de reproducción
         JPanel controles = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
         controles.setBackground(oscurecerBK);
         
@@ -279,7 +322,6 @@ public class PanelTablero extends JFrame {
         return panel;
     }
     
-    // === LÓGICA DE JUEGO ===    
     private void seleccionarCasilla(int f, int c) {
         this.casillaSeleccionada = tableroLogico.getCasillas(f, c);
         Pieza p = casillaSeleccionada.getPieza();
@@ -305,27 +347,34 @@ public class PanelTablero extends JFrame {
         btnUsarHabilidad.setEnabled(false);
 
         if (p instanceof Becario) {
-            ((Becario) p).usarHabilidad(tableroLogico, () -> {
-                SwingUtilities.invokeLater(() -> actualizarTablero());
-            });
-            
+            p.usarHabilidad(tableroLogico);
+            actualizarTablero();
         } else if (p instanceof MaquinaExpendedora) {
-            ((MaquinaExpendedora) p).usarHabilidad(tableroLogico, 
-                (texto) -> SwingUtilities.invokeLater(() -> lblPantallaMaquina.setText(texto)),
-                () -> {
-                     btnUsarHabilidad.setEnabled(true);
-                     actualizarTablero();
-                }
-            );
-        } else if (p instanceof Secretaria) {
-            ((Secretaria) p).usarHabilidad(tableroLogico,
-                    (texto) -> SwingUtilities.invokeLater(() -> lblPantallaMaquina.setText(texto)),
-                    () -> {
-                         btnUsarHabilidad.setEnabled(true);
-                         actualizarTablero(); 
+            MaquinaExpendedora maq = (MaquinaExpendedora) p;
+            maq.usarHabilidadConDisplay(tableroLogico, lblPantallaMaquina);
+            
+            // Habilitar el botón después de 3 segundos
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(3000);
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                btnUsarHabilidad.setEnabled(true);
+                                actualizarTablero();
+                            }
+                        });
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                );
-            }
+                }
+            }).start();
+        } else if (p instanceof Secretaria) {
+            p.usarHabilidad(tableroLogico);
+            actualizarTablero();
+        }
     }
 
     private void actualizarTablero() {
