@@ -64,6 +64,7 @@ public class PanelTablero extends JFrame {
         main.setLayout(new BorderLayout());
         setContentPane(main);
 
+        // === SE ELIGE EL COLOR ===
         Color colorAzulDeusto = new Color(58, 117, 173); 
         Color colorFondoAzul = new Color(0, 123, 255); 
         Color colorTexto = new Color(230, 235, 255); 

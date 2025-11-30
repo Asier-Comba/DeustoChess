@@ -40,7 +40,9 @@ public class TablaHistorial extends JFrame{
 		pSur = new JPanel();
 		getContentPane().add(pSur, BorderLayout.SOUTH);
 		getContentPane().add(pCentro, BorderLayout.CENTER);
-		//Creación botones
+
+		// === CREACIÓN DE BOTONES ===
+		
 		JButton btnVolverMenu = new JButton("VOLVER");
 		JButton btnSalir = new JButton("SALIR");
 		JButton btnCerrarSesion = new JButton("CERRAR SESIÓN");
@@ -50,6 +52,7 @@ public class TablaHistorial extends JFrame{
 		pSur.add(btnCerrarSesion);
 		
 	
+		// === CREACIÓN DEL MODELO CON LA BD ===
 		
 		modeloHistorial = new ModeloTablaHistorial(bd.obtenerJugador());
 		tablaHistorial = new JTable(modeloHistorial);
@@ -57,6 +60,7 @@ public class TablaHistorial extends JFrame{
 		pCentro.add(scrollHistorial);
 		
 		
+		// === AÑADIR LOS ACTIONLISTENERS DE LOS BOTONES ===
 		
 		 btnSalir.addActionListener(e -> System.exit(0));
 	        

@@ -126,41 +126,54 @@ public class VentanaInicioSesion extends JFrame {
 		fondo.add(btnCrearCuenta);
 
 		// === AÑADIR LISTENERS ===
+
 		// === ACCIÓN: INICIAR SESIÓN ===
 		btnIniciarSesion.addActionListener(new ActionListener() {
 		    @Override
 		    public void actionPerformed(ActionEvent e) {
+		        
+		        // === OBTENER VALORES DE LOS CAMPOS DE TEXTO ===
 		        String usuario = txtUsuario.getText();
 		        String contrasenia = new String(txtContrasenia.getPassword());
-
+		        
+		        // === LIMPIAR PLACEHOLDERS SI NO SE MODIFICARON ===
+		       
 		        if (usuario.equals(placeholderUsuario)) usuario = "";
 		        if (contrasenia.equals(placeholderContra)) contrasenia = "";
-
-		       
+		        
+		        // === VERIFICAR CREDENCIALES EN LA BASE DE DATOS ===
 		        if (bd.verificarCredenciales(usuario, contrasenia)) {
 		            JOptionPane.showMessageDialog(null, "Inicio de sesión correcto para: " + usuario);
 		            ventanaActual.setVisible(false);
-		         
-		            new VentanaPrincipal(ventanaActual, bd); 
+		            new VentanaPrincipal(ventanaActual, bd);
+		            
 		        } else {
-		         
+		            
+		            // === VERIFICAR CREDENCIALES DE PRUEBA ===
 		            if (usuario.equals("deusto") && contrasenia.equals("deusto")) {
-		                 JOptionPane.showMessageDialog(null, "Inicio de sesión de prueba correcto.");
-		                 ventanaActual.setVisible(false);
-		                 new VentanaPrincipal(ventanaActual, bd); 
+		                JOptionPane.showMessageDialog(null, "Inicio de sesión de prueba correcto.");
+		                ventanaActual.setVisible(false);
+		                new VentanaPrincipal(ventanaActual, bd);
+		                
 		            } else {
+		                
+		                // === CREDENCIALES INCORRECTAS ===
 		                JOptionPane.showMessageDialog(null, "Usuario y/o contraseña incorrectos");
 		            }
 		        }
-
-
-					txtUsuario.setForeground(Color.GRAY);
-					txtUsuario.setText(placeholderUsuario);
-					txtContrasenia.setForeground(Color.GRAY);
-					txtContrasenia.setText(placeholderContra);
-					txtContrasenia.setEchoChar((char) 0);
-				}
-			
+		        
+		        
+		        // === RESTAURAR CAMPO USUARIO ===
+		        txtUsuario.setForeground(Color.GRAY);
+		        txtUsuario.setText(placeholderUsuario);
+		        
+		        // === RESTAURAR CAMPO CONTRASEÑA ===
+		        txtContrasenia.setForeground(Color.GRAY);
+		        txtContrasenia.setText(placeholderContra);
+		        
+		        // === DESACTIVAR OCULTACIÓN PARA MOSTRAR PLACEHOLDER ===
+		        txtContrasenia.setEchoChar((char) 0);
+		    }
 		});
 		
 		// === ACCIÓN: CREAR CUENTA ===
