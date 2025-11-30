@@ -16,7 +16,7 @@ public class Ajedrez {
 //		bd.insertarNuevoJugador("Mikel", "González", "49525824J", 865, 534);
 //		bd.insertarNuevoJugador("Javier", "Pérez", "49672456Z", 84, 4);
 //		System.out.println(bd.obtenerJugador());
-//		bd.closeBD();
+		bd.closeBD();
 
 		
 		new gui.VentanaInicioSesion(bd); 

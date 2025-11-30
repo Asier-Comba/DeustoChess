@@ -198,6 +198,28 @@ public class ConexionBD {
 		}
 		return enc;
 	}
+
+	public int obtenerCantidadJugadores() {
+	    String sql = "SELECT COUNT(*) FROM Historial";
+	    int cantidad = 0;
+	    
+	    try {
+	        Statement st = con.createStatement();
+	        ResultSet rs = st.executeQuery(sql);
+	        
+	        if (rs.next()) {
+	            cantidad = rs.getInt(1);
+	        }
+	        
+	        rs.close();
+	        st.close();
+	    } catch (SQLException e) {
+	        System.err.println("Error al obtener cantidad de jugadores: " + e.getMessage());
+	        e.printStackTrace();
+	    }
+	    
+	    return cantidad;
+	}
 }
 	
 	

@@ -198,7 +198,8 @@ public class VentanaCrearCuenta extends JFrame {
 			String usuario = txtUsuario.getText().trim();
 			String contrasenia = new String(txtContrasenia.getPassword());
 			
-			String idJ = "J" + System.currentTimeMillis(); 
+			int cantidadJugadores = bd.obtenerCantidadJugadores();
+			String idJ = "J" + String.format("%04d", cantidadJugadores + 1);
 
 			if (!nombre.isEmpty() && !apellido.isEmpty() && !usuario.isEmpty() && !contrasenia.isEmpty()
 					&& !usuario.equals(placeholderUsuario) && !contrasenia.equals(placeholderContra)) {
