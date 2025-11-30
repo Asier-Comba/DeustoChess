@@ -10,9 +10,8 @@ public class Rector extends Pieza {
 	private boolean enExpediente; 
 	private boolean jaqueMate;
 
-	public Rector(String nombre, Movimiento movimiento, HabilidadEspecial habilidad, Color color, int fila,
-			int columna, boolean haUsadoHabilidad, boolean enExpediente, boolean jaqueMate) {
-		super(nombre, movimiento, habilidad, color, fila, columna);
+	public Rector(String nombre, Color color, int fila, int columna, boolean haUsadoHabilidad, boolean enExpediente, boolean jaqueMate) {
+		super(nombre, color, fila, columna);
 		this.haUsadoHabilidad = haUsadoHabilidad;
 		this.enExpediente = enExpediente;
 		this.jaqueMate = jaqueMate;
@@ -26,8 +25,13 @@ public class Rector extends Pieza {
 		this.haUsadoHabilidad = haUsadoHabilidad;
 	}
 	
-	public boolean isEnExpediente() { return enExpediente; }
-	public void setEnExpediente(boolean enExpediente) { this.enExpediente = enExpediente; }
+	public boolean isEnExpediente() {
+		return enExpediente; 
+	}
+	
+	public void setEnExpediente(boolean enExpediente) {
+		this.enExpediente = enExpediente; 
+	}
 
 	// === MOVIMIENTO ===
 	@Override

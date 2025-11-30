@@ -2,8 +2,6 @@ package domain;
 
 public abstract class  Pieza {
 	protected String nombre;
-	protected Movimiento movimiento;
-	protected HabilidadEspecial habilidad;
 	
 	protected Color color;
 	protected int fila;
@@ -18,12 +16,9 @@ public abstract class  Pieza {
     }
 	
 	
-	public Pieza(String nombre, Movimiento movimiento, HabilidadEspecial habilidad, Color color, int fila,
-			int columna) {
+	public Pieza(String nombre, Color color, int fila, int columna) {
 		super();
 		this.nombre = nombre;
-		this.movimiento = movimiento;
-		this.habilidad = habilidad;
 		this.color = color;
 		this.fila = fila;
 		this.columna = columna;
@@ -35,18 +30,7 @@ public abstract class  Pieza {
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
 	}
-	public Movimiento getMovimiento() {
-		return movimiento;
-	}
-	public void setMovimiento(Movimiento movimiento) {
-		this.movimiento = movimiento;
-	}
-	public HabilidadEspecial getHabilidad() {
-		return habilidad;
-	}
-	public void setHabilidad(HabilidadEspecial habilidad) {
-		this.habilidad = habilidad;
-	}
+	
 	public Color getColor() {
 		return color;
 	}
@@ -68,8 +52,7 @@ public abstract class  Pieza {
 	
 	@Override
 	public String toString() {
-		return "Pieza [nombre=" + nombre + ", movimiento=" + movimiento + ", habilidad=" + habilidad + ", color="
-				+ color + ", fila=" + fila + ", columna=" + columna + "]";
+		return "Pieza [nombre=" + nombre +  ", color=" + color + ", fila=" + fila + ", columna=" + columna + "]";
 	}
 	
 	

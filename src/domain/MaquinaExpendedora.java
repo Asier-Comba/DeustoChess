@@ -9,8 +9,8 @@ public class MaquinaExpendedora extends Pieza {
 	
 	private JLabel displayExterno; // Para actualizar la pantalla del panel
 	
-	public MaquinaExpendedora(String nombre, Movimiento movimiento, HabilidadEspecial habilidad, Color color, int fila, int columna, boolean haUsadoHabilidad) {
-		super(nombre, movimiento, habilidad, color, fila, columna);
+	public MaquinaExpendedora(String nombre, Color color, int fila, int columna, boolean haUsadoHabilidad) {
+		super(nombre, color, fila, columna);
 	}
 
 	@Override

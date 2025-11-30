@@ -1,7 +1,5 @@
 package domain;
 
-
-
 public class Tablero {
 	private Casilla[][] casillas;
 	private boolean reunionUrgencia; 
@@ -39,43 +37,43 @@ public class Tablero {
 	private void colocacionPiezas() {
 		// === BLANCAS (FILAS 0 y 1) ===
 		// Torres (Máquinas Expendedoras)
-		casillas[0][0].setPieza(new MaquinaExpendedora("Maquina", null, null, Color.BLANCA, 0, 0, false));
-		casillas[0][7].setPieza(new MaquinaExpendedora("Maquina", null, null, Color.BLANCA, 0, 7, false));
+		casillas[0][0].setPieza(new MaquinaExpendedora("Maquina", Color.BLANCA, 0, 0, false));
+		casillas[0][7].setPieza(new MaquinaExpendedora("Maquina", Color.BLANCA, 0, 7, false));
 		
 		// Caballos (Becarios)
-		casillas[0][1].setPieza(new Becario("Becario", null, null, Color.BLANCA, 0, 1, false));
-		casillas[0][6].setPieza(new Becario("Becario", null, null, Color.BLANCA, 0, 6, false));
+		casillas[0][1].setPieza(new Becario("Becario", Color.BLANCA, 0, 1, false));
+		casillas[0][6].setPieza(new Becario("Becario", Color.BLANCA, 0, 6, false));
 		
 		// Alfiles (Secretarias)
-		casillas[0][2].setPieza(new Secretaria("Secretaria", null, null, Color.BLANCA, 0, 2, false));
-		casillas[0][5].setPieza(new Secretaria("Secretaria", null, null, Color.BLANCA, 0, 5, false));
+		casillas[0][2].setPieza(new Secretaria("Secretaria", Color.BLANCA, 0, 2, false));
+		casillas[0][5].setPieza(new Secretaria("Secretaria", Color.BLANCA, 0, 5, false));
 		
 		// Reina (Bedel) - Nota: En ajedrez real, reina blanca va en casilla blanca (d1 -> 0,3)
-		casillas[0][3].setPieza(new Bedel("Bedel", null, null, Color.BLANCA, 0, 3, false));
+		casillas[0][3].setPieza(new Bedel("Bedel", Color.BLANCA, 0, 3, false));
 		
 		// Rey (Rector)
-		casillas[0][4].setPieza(new Rector("Rector", null, null, Color.BLANCA, 0, 4, false, false, false));
+		casillas[0][4].setPieza(new Rector("Rector", Color.BLANCA, 0, 4, false, false, false));
 		
 		// Peones (Alumnos)
 		for (int j = 0; j < 8; j++) {
-			casillas[1][j].setPieza(new Alumno("Alumno", null, null, Color.BLANCA, 1, j, false));
+			casillas[1][j].setPieza(new Alumno("Alumno", Color.BLANCA, 1, j, false));
 		}
 
 		// === NEGRAS (FILAS 7 y 6) ===
-		casillas[7][0].setPieza(new MaquinaExpendedora("Maquina", null, null, Color.NEGRA, 7, 0, false));
-		casillas[7][7].setPieza(new MaquinaExpendedora("Maquina", null, null, Color.NEGRA, 7, 7, false));
+		casillas[7][0].setPieza(new MaquinaExpendedora("Maquina", Color.NEGRA, 7, 0, false));
+		casillas[7][7].setPieza(new MaquinaExpendedora("Maquina", Color.NEGRA, 7, 7, false));
 		
-		casillas[7][1].setPieza(new Becario("Becario", null, null, Color.NEGRA, 7, 1, false));
-		casillas[7][6].setPieza(new Becario("Becario", null, null, Color.NEGRA, 7, 6, false));
+		casillas[7][1].setPieza(new Becario("Becario", Color.NEGRA, 7, 1, false));
+		casillas[7][6].setPieza(new Becario("Becario", Color.NEGRA, 7, 6, false));
 		
-		casillas[7][2].setPieza(new Secretaria("Secretaria", null, null, Color.NEGRA, 7, 2, false));
-		casillas[7][5].setPieza(new Secretaria("Secretaria", null, null, Color.NEGRA, 7, 5, false));
+		casillas[7][2].setPieza(new Secretaria("Secretaria", Color.NEGRA, 7, 2, false));
+		casillas[7][5].setPieza(new Secretaria("Secretaria", Color.NEGRA, 7, 5, false));
 		
-		casillas[7][3].setPieza(new Rector("Rector", null, null, Color.NEGRA, 7, 3, false, false, false));
-		casillas[7][4].setPieza(new Bedel("Bedel", null, null, Color.NEGRA, 7, 4, false));
+		casillas[7][3].setPieza(new Rector("Rector", Color.NEGRA, 7, 3, false, false, false));
+		casillas[7][4].setPieza(new Bedel("Bedel", Color.NEGRA, 7, 4, false));
 
 		for (int j = 0; j < 8; j++) {
-			casillas[6][j].setPieza(new Alumno("Alumno", null, null, Color.NEGRA, 6, j, false));
+			casillas[6][j].setPieza(new Alumno("Alumno", Color.NEGRA, 6, j, false));
 		}
 	}
 	

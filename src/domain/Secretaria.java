@@ -8,9 +8,8 @@ public class Secretaria extends Pieza {
     private int f1, c1, f2, c2;
     private boolean cancelado;
 
-    public Secretaria(String nombre, Movimiento movimiento, HabilidadEspecial habilidad, Color color, int fila,
-            int columna, boolean haUsadoHabilidad) {
-        super(nombre, movimiento, habilidad, color, fila, columna);
+    public Secretaria(String nombre, Color color, int fila, int columna, boolean haUsadoHabilidad) {
+        super(nombre, color, fila, columna);
     }
     
     public boolean isHaUsadoHabilidad() {

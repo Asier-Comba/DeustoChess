@@ -12,7 +12,7 @@ public class VentanaPrincipal extends JFrame {
     private static JFrame ventanaActual;
 
     private JPanel pSur, pEste, pOeste;
-    private JButton btnCerrarSesion, btnSalir, btn1VS1, btn1vsIA, btnReglas, btnHistorial;
+    private JButton btnCerrarSesion, btnSalir, btn1VS1, btnReglas, btnHistorial;
     private JFrame ventanaAnterior;
     private ConexionBD bd;
 

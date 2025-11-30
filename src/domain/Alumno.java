@@ -8,9 +8,8 @@ public class Alumno extends Pieza {
     protected boolean expediente; 
     protected boolean expulsion;
 
-    public Alumno(String nombre, Movimiento movimiento, HabilidadEspecial habilidad, Color color, int fila,
-            int columna, boolean haUsadoHabilidad) {
-        super(nombre, movimiento, habilidad, color, fila, columna);
+    public Alumno(String nombre, Color color, int fila, int columna, boolean haUsadoHabilidad) {
+        super(nombre, color, fila, columna);
         this.haUsadoHabilidad = haUsadoHabilidad;
     }
 
