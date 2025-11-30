@@ -5,6 +5,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 
+import bd.ConexionBD;
+
 public class VentanaCrearCuenta extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -15,27 +17,24 @@ public class VentanaCrearCuenta extends JFrame {
 	private JTextField nomUsuario;
 	private JTextField apellidosUsuario;
 	private JFrame ventanaAnterior, ventanaActual;
+	private ConexionBD bd;
 
-	public VentanaCrearCuenta(JFrame va) {
+	public VentanaCrearCuenta(JFrame va, ConexionBD bd) {
+		this.bd = bd;
 		ventanaActual = this;
 		ventanaAnterior = va;
-		// === CREAMOS LA VENTANA ===
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setSize(500,700);
 		setTitle("Crear cuenta - DeustoChess");
 		setResizable(false);
-		// === VOLVEMOS A PONER EL LOGO ===
 		ImageIcon im = new ImageIcon("img/LogoDeustoChess.png");
 		setIconImage(im.getImage());
 		
-		// === ESTABLECEMOS FONDO ===
 		PanelConFondo fondo = new PanelConFondo("/images/crearCuenta.jpg");
 		setContentPane(fondo);
 		
-		// === USAMOS LAYOUT NULL PARA POSICIONAMIENTO CON SETBOUNDS ===
 		fondo.setLayout(null);
 
-		//=== CREAMOS LOS BOTONES E INICIALIZAMOS TODOS LOS COMPONENTES===
 		btnIniciarSesion = new JButton("");
 		btnCrearCuenta = new JButton("");
 		txtUsuario = new JTextField();
@@ -43,19 +42,15 @@ public class VentanaCrearCuenta extends JFrame {
 		nomUsuario = new JTextField();
 		apellidosUsuario = new JTextField();
 		
-		// === CONFIGURAMOS EL PLACEHOLDER PARA USUARIO ===
 		String placeholderUsuario = "Usuario";
-		txtUsuario.setText(placeholderUsuario); //Esto lo hacemos para que cuando campo = vacio aparezca lo que espera la aplicación que pongamos ahi
+		txtUsuario.setText(placeholderUsuario);
 		txtUsuario.setForeground(Color.gray);
-		// === CENTRAMOS EL TEXTO ===
 		txtUsuario.setHorizontalAlignment(JTextField.CENTER); 
 		txtUsuario.setFont(new Font("Arial", Font.BOLD, 18));
-		// === FONDO TRANSPARENTE ===
 		txtUsuario.setOpaque(false);
-		// === SIN BORDES ===
 		txtUsuario.setBorder(null);
 		
-		txtUsuario.addFocusListener(new FocusAdapter() { //IA GENERATIVA
+		txtUsuario.addFocusListener(new FocusAdapter() { 
 			@Override
 			public void focusGained(FocusEvent e) {
 				if (txtUsuario.getText().equals(placeholderUsuario)) {
@@ -72,16 +67,13 @@ public class VentanaCrearCuenta extends JFrame {
 			}
 		});
 		
-		// === CONFIGURACIÓN DEL PLACEHOLDER PARA LA CONTRASEÑA ===
 		String placeholderContra = "Contraseña";
-		// === GUARDAR EL CARÁCTER '•' (IA GENERATIVA) ===
 		char defaultEchoChar = txtContrasenia.getEchoChar(); 
 		txtContrasenia.setText(placeholderContra);
 		txtContrasenia.setForeground(Color.GRAY);
 		txtContrasenia.setEchoChar((char) 0);
 		txtContrasenia.setHorizontalAlignment(JPasswordField.CENTER); 
 		txtContrasenia.setFont(new Font("Arial", Font.BOLD, 18));
-		// === FONDO TRANSPARENTE PARA USAR LA IMAGEN ===
 		txtContrasenia.setOpaque(false); 
 		txtContrasenia.setBorder(null);
 		
@@ -92,7 +84,6 @@ public class VentanaCrearCuenta extends JFrame {
 				if (pass.equals(placeholderContra)) {
 					txtContrasenia.setText("");
 					txtContrasenia.setForeground(Color.BLACK);
-					// === OCULTAR TEXTO AL ESCRIBIR (IA GENERATIVA) ===
 					txtContrasenia.setEchoChar(defaultEchoChar); 
 				}
 			}
@@ -102,25 +93,20 @@ public class VentanaCrearCuenta extends JFrame {
 				if (pass.isEmpty()) {
 					txtContrasenia.setForeground(Color.GRAY);
 					txtContrasenia.setText(placeholderContra);
-					// === MOSTRAR PLACEHOLDER (IA GENERATIVA) ===
 					txtContrasenia.setEchoChar((char) 0);
 				}
 			}
 		});
 		
-		// === CONFIGURACIÓN DEL PLACEHOLDER PARA EL NOMBRE ===
 		String placeholderNom = "Nombre";
-		nomUsuario.setText(placeholderNom); //Esto lo hacemos para que cuando campo = vacio aparezca que espera la aplicación que pongamos ahi
+		nomUsuario.setText(placeholderNom);
 		nomUsuario.setForeground(Color.gray);
-		// === CENTRAMOS EL TEXTO ===
 		nomUsuario.setHorizontalAlignment(JTextField.CENTER); 
 		nomUsuario.setFont(new Font("Arial", Font.BOLD, 18));
-		// === FONDO TRANSPARENTE ===
 		nomUsuario.setOpaque(false);
-		// === SIN BORDES ===
 		nomUsuario.setBorder(null);
 		
-		nomUsuario.addFocusListener(new FocusAdapter() { //IA GENERATIVA
+		nomUsuario.addFocusListener(new FocusAdapter() { 
 			@Override
 			public void focusGained(FocusEvent e) {
 				if (nomUsuario.getText().equals(placeholderNom)) {
@@ -137,19 +123,15 @@ public class VentanaCrearCuenta extends JFrame {
 			}
 		});
 		
-		// === CONFIGURACIÓN DEL PLACEHOLDER PARA EL APELLIDO ===
 		String placeholderApe = "Apellidos";
-		apellidosUsuario.setText(placeholderApe); //Esto lo hacemos para que cuando campo = vacio aparezca que espera la aplicación que pongamos ahi
+		apellidosUsuario.setText(placeholderApe);
 		apellidosUsuario.setForeground(Color.gray);
-		// === CENTRAMOS EL TEXTO ===
 		apellidosUsuario.setHorizontalAlignment(JTextField.CENTER); 
 		apellidosUsuario.setFont(new Font("Arial", Font.BOLD, 18));
-		// === FONDO TRANSPARENTE ===
 		apellidosUsuario.setOpaque(false);
-		// === SIN BORDES ===
 		apellidosUsuario.setBorder(null);
 		
-		apellidosUsuario.addFocusListener(new FocusAdapter() { //IA GENERATIVA
+		apellidosUsuario.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
 				if (apellidosUsuario.getText().equals(placeholderApe)) {
@@ -167,19 +149,16 @@ public class VentanaCrearCuenta extends JFrame {
 		});
 		
 		
-		/// === CONFIGURACIÓN DEL BOTÓN DE CREAR CUENTA (INVISIBLE) ===
 		btnCrearCuenta.setOpaque(false);
 		btnCrearCuenta.setContentAreaFilled(false);
 		btnCrearCuenta.setBorderPainted(false);
 		btnCrearCuenta.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		
-		/// === CONFIGURACIÓN DEL BOTÓN DE INICIAR SESION (INVISIBLE) ===
 		btnIniciarSesion.setOpaque(false);
 		btnIniciarSesion.setContentAreaFilled(false);
 		btnIniciarSesion.setBorderPainted(false);
 		btnIniciarSesion.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		
-		// === POSICIONAR COMPONENTES CON SETBOUNDS ===
 		int startY = 222;
 		int height = 45;
 		int spacing = 10;
@@ -198,7 +177,6 @@ public class VentanaCrearCuenta extends JFrame {
 		btnCrearCuenta.setBounds(103, 450, 142, 40);
 
 
-		// ===AÑADIMOS LOS COMPONENTES===
 		fondo.add(nomUsuario);
 		fondo.add(apellidosUsuario);
 		fondo.add(txtUsuario);
@@ -207,7 +185,6 @@ public class VentanaCrearCuenta extends JFrame {
 		fondo.add(btnCrearCuenta);
 		
 		
-		// === ACCIÓN INICIAR SESIÓN ===
 		btnIniciarSesion.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -216,25 +193,44 @@ public class VentanaCrearCuenta extends JFrame {
 			}
 		});
 		
-		// === ACCIÓN: CREAR CUENTA (SOLO PLACEHOLDER) ===
 		btnCrearCuenta.addActionListener(e -> {
-			String nombre = txtUsuario.getText();
+			String nombre = nomUsuario.getText().trim();
+			String apellido = apellidosUsuario.getText().trim();
+			String usuario = txtUsuario.getText().trim();
 			String contrasenia = new String(txtContrasenia.getPassword());
-			if (!nombre.equals("") && !contrasenia.equals("")) {
-
-			JOptionPane.showMessageDialog(null, "Creación de cuenta realizada correctamente");
 			
+			String idJ = "J" + System.currentTimeMillis(); 
+
+			if (!nombre.isEmpty() && !apellido.isEmpty() && !usuario.isEmpty() && !contrasenia.isEmpty()
+					&& !usuario.equals(placeholderUsuario) && !contrasenia.equals(placeholderContra)) {
+
+				boolean registrado = bd.registrarNuevoJugador(idJ, nombre, apellido, usuario, contrasenia);
+
+				if (registrado) {
+					JOptionPane.showMessageDialog(null, "Creación de cuenta realizada correctamente. Ya puedes iniciar sesión.");
+					ventanaActual.setVisible(false);
+					// Corrección: Muestra la ventana anterior (Inicio de Sesión) en lugar de cerrar.
+					ventanaAnterior.setVisible(true); 
+				} else {
+					JOptionPane.showMessageDialog(null, "Error: El nombre de usuario o ID ya existe. Intenta con otro nombre de usuario.");
+				}
 			} else {
-				JOptionPane.showMessageDialog(null, "No se ha podido realizar la creación de la cuenta");
+				JOptionPane.showMessageDialog(null, "Por favor, rellena todos los campos.");
 			}
 			txtUsuario.setText("");
 			txtContrasenia.setText("");
-			});
+			nomUsuario.setText("");
+			apellidosUsuario.setText("");
+		});
 
 		this.getRootPane().setDefaultButton(btnIniciarSesion);
 		this.setLocationRelativeTo(null);
 		
 		setVisible(true);
+	}
+	
+	public VentanaCrearCuenta(JFrame va) {
+		this(va, null);
 	}
 
 }

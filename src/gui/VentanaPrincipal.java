@@ -1,6 +1,7 @@
 package gui;
 
 import java.awt.*;
+import bd.ConexionBD;
 import javax.swing.*;
 
 import bd.ConexionBD;
@@ -13,12 +14,12 @@ public class VentanaPrincipal extends JFrame {
     private JPanel pSur, pEste, pOeste;
     private JButton btnCerrarSesion, btnSalir, btn1VS1, btn1vsIA, btnReglas, btnHistorial;
     private JFrame ventanaAnterior;
-    //private ConexionBD bd;
+    private ConexionBD bd;
 
-    public VentanaPrincipal(JFrame va) {
+    public VentanaPrincipal(JFrame va, ConexionBD bd) {
         ventanaActual = this;
         ventanaAnterior = va;
-      //  this.bd = bd;
+        this.bd = bd;
 
         // === CONFIGURACIÓN BÁSICA DE LA VENTANA ===
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -133,18 +134,18 @@ public class VentanaPrincipal extends JFrame {
             ventanaReglas.setVisible(true);
  
         });
+    
+        btnHistorial.addActionListener(e -> {
+            ventanaActual.setVisible(false);
+           
+            new TablaHistorial(ventanaActual, bd).setVisible(true); 
+        });
         
         btn1VS1.addActionListener(e -> {
             ventanaActual.setVisible(false);
-            new PanelTablero(ventanaActual);
+          
+            new PanelTablero(ventanaActual, bd).setVisible(true); 
         });
-        
-        btnHistorial.addActionListener(e ->{
-        	ventanaActual.setVisible(false);
-        	new TablaHistorial(ventanaActual);
-        });
-        
-        
         // === HACER VISIBLE ===
         setVisible(true);
     }

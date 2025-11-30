@@ -23,7 +23,7 @@ public class Historial {
 		return jugadorNom;
 	}
 	public void setJugadorNom(String jugadorNom) {
-		// ¡CORREGIDO! Antes asignaba a this.jugadorApell
+		
 		this.jugadorNom = jugadorNom; 
 	}
 	public String getJugadorApell() {

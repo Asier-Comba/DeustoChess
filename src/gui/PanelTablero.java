@@ -1,6 +1,6 @@
 package gui;
 
-import java.awt.BorderLayout;
+import java.awt.BorderLayout; 
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -24,6 +24,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
+import bd.ConexionBD;
 import domain.Alumno;
 import domain.Becario;
 import domain.Casilla;
@@ -45,10 +46,11 @@ public class PanelTablero extends JFrame {
     private JLabel lblPiezaSeleccionada;
     private JLabel lblPantallaMaquina; 
     private JButton btnUsarHabilidad;
-
-    public PanelTablero(JFrame va) {
+    private ConexionBD bd;
+    
+    public PanelTablero(JFrame va, ConexionBD bd) {
         this.ventanaAnterior = va;
-        
+        this.bd = bd;
         this.tableroLogico = new Tablero();
         this.botonesCasillas = new JButton[8][8];
 
@@ -207,7 +209,7 @@ public class PanelTablero extends JFrame {
                 setVisible(false);
                 dispose();
                 if (ventanaAnterior != null) ventanaAnterior.dispose(); 
-                new VentanaInicioSesion(); 
+                new VentanaInicioSesion(bd); 
             }
         });
 
@@ -421,6 +423,6 @@ public class PanelTablero extends JFrame {
     }
 
     public PanelTablero() {
-        this(null);
+        this(null, null);
     }
 }

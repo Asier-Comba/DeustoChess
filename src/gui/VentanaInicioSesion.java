@@ -5,7 +5,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import bd.ConexionBD;
-
+import bd.ConexionBD;
 public class VentanaInicioSesion extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -14,11 +14,11 @@ public class VentanaInicioSesion extends JFrame {
 	private JTextField txtUsuario;
 	private JPasswordField txtContrasenia;
 	private JFrame ventanaActual;
-//	private ConexionBD bd;
+	private ConexionBD bd;
 	
-	public VentanaInicioSesion() {
+	public VentanaInicioSesion(ConexionBD bd) {
+		this.bd = bd;
 		ventanaActual = this;
-		//this.bd = bd;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setSize(500,700);
 		setTitle("Inicio de sesión - DeustoChess");
@@ -128,34 +128,45 @@ public class VentanaInicioSesion extends JFrame {
 		// === AÑADIR LISTENERS ===
 		// === ACCIÓN: INICIAR SESIÓN ===
 		btnIniciarSesion.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String nombre = txtUsuario.getText();
-				String contrasenia = new String(txtContrasenia.getPassword());
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        String usuario = txtUsuario.getText();
+		        String contrasenia = new String(txtContrasenia.getPassword());
 
-				if (nombre.equals(placeholderUsuario)) nombre = "";
-				if (contrasenia.equals(placeholderContra)) contrasenia = "";
+		        if (usuario.equals(placeholderUsuario)) usuario = "";
+		        if (contrasenia.equals(placeholderContra)) contrasenia = "";
 
-				if (nombre.equals("deusto") && contrasenia.equals("deusto")) {
-					JOptionPane.showMessageDialog(null, "Inicio de sesión correcto");
-					ventanaActual.setVisible(false);
-					 new VentanaPrincipal(ventanaActual);
-				} else {
-					JOptionPane.showMessageDialog(null, "Usuario y/o contraseña incorrectos");
+		       
+		        if (bd.verificarCredenciales(usuario, contrasenia)) {
+		            JOptionPane.showMessageDialog(null, "Inicio de sesión correcto para: " + usuario);
+		            ventanaActual.setVisible(false);
+		         
+		            new VentanaPrincipal(ventanaActual, bd); 
+		        } else {
+		         
+		            if (usuario.equals("deusto") && contrasenia.equals("deusto")) {
+		                 JOptionPane.showMessageDialog(null, "Inicio de sesión de prueba correcto.");
+		                 ventanaActual.setVisible(false);
+		                 new VentanaPrincipal(ventanaActual, bd); 
+		            } else {
+		                JOptionPane.showMessageDialog(null, "Usuario y/o contraseña incorrectos");
+		            }
+		        }
+
+
+					txtUsuario.setForeground(Color.GRAY);
+					txtUsuario.setText(placeholderUsuario);
+					txtContrasenia.setForeground(Color.GRAY);
+					txtContrasenia.setText(placeholderContra);
+					txtContrasenia.setEchoChar((char) 0);
 				}
-
-				txtUsuario.setForeground(Color.GRAY);
-				txtUsuario.setText(placeholderUsuario);
-				txtContrasenia.setForeground(Color.GRAY);
-				txtContrasenia.setText(placeholderContra);
-				txtContrasenia.setEchoChar((char) 0);
-			}
+			
 		});
 		
 		// === ACCIÓN: CREAR CUENTA ===
 		btnCrearCuenta.addActionListener(e -> {
 			ventanaActual.setVisible(false);
-			 new VentanaCrearCuenta(ventanaActual); 
+			 new VentanaCrearCuenta(ventanaActual, bd); 
 		});
 
 		this.getRootPane().setDefaultButton(btnIniciarSesion);

@@ -30,7 +30,7 @@ public class TablaHistorial extends JFrame{
 	 
 	private ConexionBD bd;
 	
-	public TablaHistorial(JFrame va) {
+	public TablaHistorial(JFrame va, ConexionBD bd) {
 		this.ventanaAnterior = va;
 		
 		setBounds(300, 200, 600, 500);
@@ -76,7 +76,7 @@ public class TablaHistorial extends JFrame{
 	                ventanaAnterior.dispose(); 
 	            }
 	            
-	            new VentanaInicioSesion(); 
+	            new VentanaInicioSesion(bd); 
 	        });
 
 	        setLocationRelativeTo(null); 

@@ -45,20 +45,21 @@ public class ModeloTablaHistorial extends DefaultTableModel{
 		@Override
 		public Object getValueAt(int row, int column) {
 			Historial p = historial.get(row);
-	        switch (column) {
-	        case 0:
-	            return p.getJugadorNom();
-	        case 1:
-	            return p.getJugadorApell();
-	        case 2: 
-	        	return p.getIdJ();
-	        case 3:
-	            return p.getGanadas();
-	        case 4:
-	            return p.getPerdidas();
-	        default:
-	            return null;
-		}
+			switch (column) {
+			    case 0:
+			        return p.getJugadorNom(); // NOM_JUGADOR
+			    case 1:
+			        return p.getJugadorApell(); // APELLIDO_JUGADOR
+			    case 2:
+			        return p.getIdJ(); // ID JUGADOR
+			    case 3:
+			        return p.getGanadas(); // GANADAS
+			    case 4:
+			        return p.getPerdidas(); // PERDIDAS
+			    default:
+			        return null;
+			}
+		
 		}
 	
 	}
