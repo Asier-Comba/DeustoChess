@@ -57,9 +57,9 @@ public class ConexionBD {
 			e.printStackTrace();
 		}
 	}
-	/*Devuelve true si el alumno cuyo dni recibe por parámetro está en la tabla Historial de la bbdd y false en caso contrario*/
+
 	public boolean buscarJugador(String idJ){
-	    // Había una línea con la tabla "Alumno" que no existe, la reemplazamos por "Historial"
+	    
 	    String sql = String.format("SELECT * FROM Historial WHERE idJ = '%s'", idJ); 
 	    
 	    boolean enc = false;
@@ -78,7 +78,7 @@ public class ConexionBD {
 	    return enc;
 	}
 	
-	/*Insertar un nuevo alumno*/
+	
 	public void insertarNuevoJugador(String idJ, String jugadorNom, String jugadorApell, int ganadas, int perdidas) {
 		
 		if(!buscarJugador(idJ)) {
@@ -93,7 +93,7 @@ public class ConexionBD {
 		}
 	}
 	
-	/*Borrar un determinado alumno*/
+
 	public void borrarJugador(String idJ) {
 		String sql = "DELETE FROM Historial WHERE idJ = '" +idJ + "'";
 		sql = String.format("DELETE FROM Historial WHERE idJ = '%s'", idJ);

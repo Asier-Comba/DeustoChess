@@ -3,8 +3,6 @@ package gui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.EtchedBorder;
-
 import bd.ConexionBD;
 
 public class VentanaCrearCuenta extends JFrame {
@@ -17,6 +15,7 @@ public class VentanaCrearCuenta extends JFrame {
 	private JTextField nomUsuario;
 	private JTextField apellidosUsuario;
 	private JFrame ventanaAnterior, ventanaActual;
+	
 	private ConexionBD bd;
 
 	public VentanaCrearCuenta(JFrame va, ConexionBD bd) {
@@ -209,7 +208,7 @@ public class VentanaCrearCuenta extends JFrame {
 				if (registrado) {
 					JOptionPane.showMessageDialog(null, "Creación de cuenta realizada correctamente. Ya puedes iniciar sesión.");
 					ventanaActual.setVisible(false);
-					// Corrección: Muestra la ventana anterior (Inicio de Sesión) en lugar de cerrar.
+					
 					ventanaAnterior.setVisible(true); 
 				} else {
 					JOptionPane.showMessageDialog(null, "Error: El nombre de usuario o ID ya existe. Intenta con otro nombre de usuario.");

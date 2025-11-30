@@ -47,7 +47,8 @@ public class PanelTablero extends JFrame {
     private JLabel lblPiezaSeleccionada;
     private JLabel lblPantallaMaquina; 
     private JButton btnUsarHabilidad;
-    private ConexionBD bd;
+ 
+	private ConexionBD bd;
     
     public PanelTablero(JFrame va, ConexionBD bd) {
         this.ventanaAnterior = va;

@@ -54,7 +54,7 @@ public class Historial {
 	}
 	@Override
 	public String toString() {
-		// ¡CORREGIDO! Añadido ", " antes de "jugadorApell="
+		
 		return "Historial [jugadorNom=" + jugadorNom + ", jugadorApell=" + jugadorApell + ", idJ=" + idJ + ", ganadas=" + ganadas + ", perdidas=" + perdidas
 				+ "]";
 	}

@@ -5,7 +5,7 @@ import bd.ConexionBD;
 public class Ajedrez {
 	public static void main(String[] args) {
 		
-		// 1. INICIALIZACIÓN CRÍTICA DE LA BASE DE DATOS
+		
 		ConexionBD bd = new ConexionBD();
 		bd.initBD("deustochess.db"); 
 		bd.crearTablas(); 
@@ -18,7 +18,7 @@ public class Ajedrez {
 //		System.out.println(bd.obtenerJugador());
 //		bd.closeBD();
 
-		// 2. PASAR LA CONEXIÓN A LA VENTANA INICIAL
+		
 		new gui.VentanaInicioSesion(bd); 
 	}
 }
