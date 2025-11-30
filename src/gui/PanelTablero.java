@@ -29,6 +29,7 @@ import domain.Becario;
 import domain.Casilla;
 import domain.MaquinaExpendedora;
 import domain.Pieza;
+import domain.Rector;
 import domain.Secretaria;
 import domain.Tablero;
 
@@ -329,7 +330,7 @@ public class PanelTablero extends JFrame {
         
         if (p != null) {
             lblPiezaSeleccionada.setText(p.getNombre() + " (" + p.getColor() + ")");
-            if (p instanceof Becario || p instanceof MaquinaExpendedora || p instanceof Secretaria || p instanceof Alumno) {
+            if (p instanceof Becario || p instanceof MaquinaExpendedora || p instanceof Secretaria || p instanceof Alumno || p instanceof Rector) {
                 btnUsarHabilidad.setEnabled(true);
                 btnUsarHabilidad.setText("USAR: " + p.getNombre());
             } else {
@@ -377,6 +378,9 @@ public class PanelTablero extends JFrame {
             actualizarTablero();
         } else if (p instanceof Alumno) {									
             p.usarHabilidad(tableroLogico);
+            actualizarTablero();
+        } else if (p instanceof Rector) {
+            ((Rector) p).usarHabilidad(tableroLogico);
             actualizarTablero();
         }
     }

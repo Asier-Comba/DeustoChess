@@ -1,18 +1,21 @@
 package domain;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
-public class Rector extends Pieza{
-	protected boolean haUsadoHabilidad;
-	protected boolean expediente;
-	protected boolean expulsion;
+public class Rector extends Pieza {
 	
+	private boolean haUsadoHabilidad;
+
+	private boolean enExpediente; 
+	private boolean jaqueMate;
+
 	public Rector(String nombre, Movimiento movimiento, HabilidadEspecial habilidad, Color color, int fila,
-			int columna, boolean haUsadoHabilidad, boolean expediente, boolean expulsion) {
+			int columna, boolean haUsadoHabilidad, boolean enExpediente, boolean jaqueMate) {
 		super(nombre, movimiento, habilidad, color, fila, columna);
 		this.haUsadoHabilidad = haUsadoHabilidad;
-		this.expediente = expediente;
-		this.expulsion = expulsion;
+		this.enExpediente = enExpediente;
+		this.jaqueMate = jaqueMate;
 	}
 
 	public boolean isHaUsadoHabilidad() {
@@ -22,42 +25,65 @@ public class Rector extends Pieza{
 	public void setHaUsadoHabilidad(boolean haUsadoHabilidad) {
 		this.haUsadoHabilidad = haUsadoHabilidad;
 	}
+	
+	public boolean isEnExpediente() { return enExpediente; }
+	public void setEnExpediente(boolean enExpediente) { this.enExpediente = enExpediente; }
 
-	public boolean isExpediente() {
-		return expediente;
-	}
-
-	public void setExpediente(boolean expediente) {
-		this.expediente = expediente;
-	}
-
-	public boolean isExpulsion() {
-		return expulsion;
-	}
-
-	public void setExpulsion(boolean expulsion) {
-		this.expulsion = expulsion;
-	}
-
-	@Override
-	public String toString() {
-		return "Rector [haUsadoHabilidad=" + haUsadoHabilidad + ", expediente=" + expediente + ", expulsion="
-				+ expulsion + "]";
-	}
-
+	// === MOVIMIENTO ===
 	@Override
 	public boolean movimientoValido(int nuevaFila, int nuevaColumna, Tablero tablero) {
-		// TODO Auto-generated method stub
-		return false;
+		int difFila = Math.abs(nuevaFila - this.fila);
+		int difCol = Math.abs(nuevaColumna - this.columna);
+		
+		return (difFila <= 1 && difCol <= 1) && !(difFila == 0 && difCol == 0);
 	}
 
+	// === HABILIDAD: REUNIÓN DE URGENCIA ===
 	@Override
 	public void usarHabilidad(Tablero tablero) {
-		if (haUsadoHabilidad) {
-		JOptionPane.showMessageDialog(null, "Ya se ha usado la habilidad en este turno");
-		}
+		
+		new Thread(() -> {
+			
+			if (haUsadoHabilidad) {
+				msg("El Rector ya ha convocado una reunión de urgencia en esta partida.");
+				return;
+			}
+			
+			if (enExpediente) {
+				msg("¡No puedes convocar reunión mientras estás en Expediente!");
+				return;
+			}
+
+			try {
+		
+				System.out.println("Convocando a los decanos...");
+				Thread.sleep(700);
+				System.out.println("Enviando circulares urgentes...");
+				Thread.sleep(700);
+				System.out.println("Cerrando facultades...");
+				Thread.sleep(600);
+
+				// === APLICAR EFECTO ===
+				tablero.setReunionUrgencia(true); 
+				
+				haUsadoHabilidad = true;
+
+				System.out.println("¡Reunión convocada!");
+				
+				// Mensaje final
+				String mensaje = "¡REUNIÓN DE URGENCIA!\n"
+						+ "El campus se paraliza.\n"
+						+ "En el siguiente turno, tu rival SOLO podrá mover ALUMNOS.";
+				
+				msg(mensaje);
+				
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}).start();
 	}
 	
-	
-	
+	private void msg(String texto) {
+		SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, texto));
+	}
 }

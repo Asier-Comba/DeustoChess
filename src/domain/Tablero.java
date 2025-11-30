@@ -4,6 +4,7 @@ package domain;
 
 public class Tablero {
 	private Casilla[][] casillas;
+	private boolean reunionUrgencia; 
 	
 	public Tablero() {
 		// === CREAMOS LA MATRIZ DE 8x8 ===
@@ -77,4 +78,12 @@ public class Tablero {
 			casillas[6][j].setPieza(new Alumno("Alumno", null, null, Color.NEGRA, 6, j, false));
 		}
 	}
+	
+    public boolean isReunionUrgencia() {
+        return reunionUrgencia;
+    }
+
+    public void setReunionUrgencia(boolean reunionUrgencia) {
+        this.reunionUrgencia = reunionUrgencia;
+    }
 }
