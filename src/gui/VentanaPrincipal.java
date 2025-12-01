@@ -120,7 +120,10 @@ public class VentanaPrincipal extends JFrame {
         
 
      // === ACCIONES === 
-        btnSalir.addActionListener(e -> System.exit(0)); 
+        btnSalir.addActionListener((e) -> {
+        	System.exit(0);
+        	bd.closeBD();
+        	}); 
         
         btnCerrarSesion.addActionListener(e -> { 
         
@@ -145,6 +148,17 @@ public class VentanaPrincipal extends JFrame {
             ventanaActual.setVisible(false);
           
             new PanelTablero(ventanaActual, bd).setVisible(true); 
+        });
+        
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                // Ejecutar la lógica de cierre de la base de datos
+                bd.closeBD();
+                
+                // Finalizar la aplicación
+                System.exit(0);
+            }
         });
         // === HACER VISIBLE ===
         setVisible(true);

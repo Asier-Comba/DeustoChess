@@ -327,6 +327,17 @@ public class VentanaCrearCuenta extends JFrame {
 		this.getRootPane().setDefaultButton(btnIniciarSesion);
 		this.setLocationRelativeTo(null);
 		
+		addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		        // Ejecutar la lógica de cierre de la base de datos
+		        bd.closeBD();
+		        
+		        // Finalizar la aplicación
+		        System.exit(0);
+		    }
+		});
+		
 		setVisible(true);
 	}
 	

@@ -182,6 +182,16 @@ public class VentanaInicioSesion extends JFrame {
 			 new VentanaCrearCuenta(ventanaActual, bd); 
 		});
 
+		addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		      
+		        bd.closeBD();
+		        
+		       
+		        System.exit(0);
+		    }
+		});
 		this.getRootPane().setDefaultButton(btnIniciarSesion);
 		this.setLocationRelativeTo(null);
 		
