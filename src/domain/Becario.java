@@ -7,11 +7,10 @@ import javax.swing.JOptionPane;
 
 public class Becario extends Pieza {
     protected boolean haUsadoHabilidad;
-    protected boolean expediente;
-    protected boolean expulsion;
     
     public Becario(String nombre, Color color, int fila, int columna, boolean haUsadoHabilidad) {
         super(nombre, color, fila, columna);
+        this.haUsadoHabilidad = haUsadoHabilidad;
     }
     
     public boolean isHaUsadoHabilidad() {
@@ -24,54 +23,181 @@ public class Becario extends Pieza {
     
     @Override
     public boolean movimientoValido(int nuevaFila, int nuevaColumna, Tablero tablero) {
-        return false;
+        int difFila = Math.abs(nuevaFila - this.fila);
+        int difCol = Math.abs(nuevaColumna - this.columna);
+        
+        // Verificar que esté dentro del tablero
+        if (nuevaFila < 0 || nuevaFila > 7 || nuevaColumna < 0 || nuevaColumna > 7) {
+            return false;
+        }
+        
+        // Movimiento en L
+        boolean esMovimientoL = (difFila == 2 && difCol == 1) || (difFila == 1 && difCol == 2);
+        
+        if (!esMovimientoL) {
+            return false;
+        }
+        
+        // Verificar que la casilla destino esté vacía o tenga una pieza enemiga
+        Pieza piezaDestino = tablero.getCasillas(nuevaFila, nuevaColumna).getPieza();
+        return piezaDestino == null || piezaDestino.getColor() != this.color;
     }
     
     @Override
     public void usarHabilidad(Tablero tablero) {
         if (haUsadoHabilidad) {
-            JOptionPane.showMessageDialog(null, "Ya se ha usado la habilidad en este turno");
+            JOptionPane.showMessageDialog(null, 
+                "El Becario ya ha usado su habilidad 'Corre que no llegas' en esta partida.");
             return;
         }
         
-        Random random = new Random();
-        int pasos = 3;
+        JOptionPane.showMessageDialog(null, 
+            "¡CORRE QUE NO LLEGAS!\n\n" +
+            "El Becario hará DOS saltos consecutivos en forma de L.\n" +
+            "Si captura una pieza, podrá intentar más saltos con azar decreciente:\n" +
+            "- 1er salto extra: 50% probabilidad\n" +
+            "- 2do salto extra: 25% probabilidad\n" +
+            "- 3er salto extra: 12.5% probabilidad");
         
-        for (int i = 0; i < pasos; i++) {
-            List<Casilla> candidatas = obtenerCasillasAdyacentesVacias(tablero);
+        Random random = new Random();
+        int saltosRealizados = 0;
+        int saltosMaximos = 2; // Primeros dos saltos garantizados
+        boolean capturo = false;
+        
+        // Realizar los dos primeros saltos garantizados
+        for (int i = 0; i < saltosMaximos; i++) {
+            List<Casilla> movimientosDisponibles = obtenerMovimientosEnL(tablero);
             
-            if (candidatas.isEmpty()) {
+            if (movimientosDisponibles.isEmpty()) {
+                JOptionPane.showMessageDialog(null, 
+                    "El Becario no tiene más movimientos disponibles.\n" +
+                    "Saltos realizados: " + saltosRealizados);
                 break;
             }
             
-            // Mover a casilla aleatoria
-            Casilla destino = candidatas.get(random.nextInt(candidatas.size()));
-            tablero.getCasillas(this.fila, this.columna).setPieza(null);
+            // Elegir movimiento aleatorio
+            Casilla destino = movimientosDisponibles.get(random.nextInt(movimientosDisponibles.size()));
             
+            // Verificar si hay captura
+            Pieza piezaEnDestino = destino.getPieza();
+            if (piezaEnDestino != null && piezaEnDestino.getColor() != this.color) {
+                capturo = true;
+                JOptionPane.showMessageDialog(null, 
+                    "💥 ¡El Becario capturó un " + piezaEnDestino.getNombre() + "!");
+            }
+            
+            // Realizar el salto
+            tablero.getCasillas(this.fila, this.columna).setPieza(null);
             this.fila = destino.getFila();
             this.columna = destino.getColumna();
             destino.setPieza(this);
+            
+            saltosRealizados++;
+            
+            // Convertir coordenadas a formato humano
+            char columnaLetra = (char) ('A' + this.columna);
+            int filaHumana = this.fila + 1;
+            
+            JOptionPane.showMessageDialog(null, 
+                "💻 Salto " + saltosRealizados + " completado.\n" +
+                "Nueva posición: " + columnaLetra + filaHumana);
         }
         
-        haUsadoHabilidad = true;
-    }
-    
-    private List<Casilla> obtenerCasillasAdyacentesVacias(Tablero tablero) {
-        List<Casilla> lista = new ArrayList<>();
-        int[] dFila = {-1, -1, -1, 0, 0, 1, 1, 1};
-        int[] dCol = {-1, 0, 1, -1, 1, -1, 0, 1};
-        
-        for (int i = 0; i < 8; i++) {
-            int f = this.fila + dFila[i];
-            int c = this.columna + dCol[i];
+        // Si capturó alguna pieza, intentar saltos adicionales con probabilidad decreciente
+        if (capturo) {
+            JOptionPane.showMessageDialog(null, 
+                "⚡ ¡El Becario tiene adrenalina!\n" +
+                "Intentará saltos adicionales con azar...");
             
-            if (f >= 0 && f < 8 && c >= 0 && c < 8) {
-                Casilla casilla = tablero.getCasillas(f, c);
-                if (casilla.getPieza() == null) {
-                    lista.add(casilla);
+            double probabilidad = 0.5; // 50% para el primer salto extra
+            
+            while (probabilidad > 0) {
+                // Verificar si el azar permite continuar
+                double dado = random.nextDouble();
+                
+                if (dado > probabilidad) {
+                    JOptionPane.showMessageDialog(null, 
+                        "😰 El Becario se quedó sin energía.\n" +
+                        "Probabilidad era: " + (probabilidad * 100) + "%\n" +
+                        "Saltos totales: " + saltosRealizados);
+                    break;
+                }
+                
+                // ¡Logró continuar!
+                List<Casilla> movimientosDisponibles = obtenerMovimientosEnL(tablero);
+                
+                if (movimientosDisponibles.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, 
+                        "No hay más movimientos disponibles.\n" +
+                        "Saltos totales: " + saltosRealizados);
+                    break;
+                }
+                
+                // Elegir movimiento aleatorio
+                Casilla destino = movimientosDisponibles.get(random.nextInt(movimientosDisponibles.size()));
+                
+                // Realizar el salto
+                tablero.getCasillas(this.fila, this.columna).setPieza(null);
+                this.fila = destino.getFila();
+                this.columna = destino.getColumna();
+                destino.setPieza(this);
+                
+                saltosRealizados++;
+                
+                // Convertir coordenadas a formato humano
+                char columnaLetra = (char) ('A' + this.columna);
+                int filaHumana = this.fila + 1;
+                
+                JOptionPane.showMessageDialog(null, 
+                    "✅ ¡Salto extra " + (saltosRealizados - 2) + " logrado! (Probabilidad: " + (probabilidad * 100) + "%)\n" +
+                    "Nueva posición: " + columnaLetra + filaHumana);
+                
+                // Reducir probabilidad a la mitad para el siguiente intento
+                probabilidad /= 2;
+                
+                // Límite de seguridad
+                if (saltosRealizados >= 5) {
+                    JOptionPane.showMessageDialog(null, 
+                        "🏃‍♂️ ¡El Becario alcanzó el límite de resistencia!\n" +
+                        "Saltos totales: " + saltosRealizados);
+                    break;
                 }
             }
         }
-        return lista;
+        
+        // Marcar habilidad como usada
+        haUsadoHabilidad = true;
+        
+        JOptionPane.showMessageDialog(null, 
+            "Habilidad 'Corre que no llegas' finalizada.\n" +
+            "Total de saltos realizados: " + saltosRealizados + "\n" +
+            "¿Capturó piezas?: " + (capturo ? "SÍ" : "NO"));
+    }
+    
+    // Obtener todos los movimientos en L disponibles
+    private List<Casilla> obtenerMovimientosEnL(Tablero tablero) {
+        List<Casilla> movimientos = new ArrayList<>();
+        
+        // Todos los posibles movimientos en L
+        int[] filas = {-2, -2, -1, -1, 1, 1, 2, 2};
+        int[] cols = {-1, 1, -2, 2, -2, 2, -1, 1};
+        
+        for (int i = 0; i < 8; i++) {
+            int nuevaFila = this.fila + filas[i];
+            int nuevaCol = this.columna + cols[i];
+            
+            // Verificar que esté dentro del tablero
+            if (nuevaFila >= 0 && nuevaFila <= 7 && nuevaCol >= 0 && nuevaCol <= 7) {
+                Casilla casilla = tablero.getCasillas(nuevaFila, nuevaCol);
+                Pieza piezaEnCasilla = casilla.getPieza();
+                
+                // Agregar si está vacía o tiene una pieza enemiga
+                if (piezaEnCasilla == null || piezaEnCasilla.getColor() != this.color) {
+                    movimientos.add(casilla);
+                }
+            }
+        }
+        
+        return movimientos;
     }
 }

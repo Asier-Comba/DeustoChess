@@ -20,6 +20,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -71,13 +72,13 @@ public class PanelTablero extends JFrame {
         main.setLayout(new BorderLayout());
         setContentPane(main);
 
-        // COLORES A UTILIZAR
+        // Ajustamos colores a utilizar
         Color colorAzulDeusto = new Color(58, 117, 173); 
         Color colorFondoAzul = new Color(0, 123, 255); 
         Color colorTexto = new Color(230, 235, 255); 
         Font buttonFont = new Font("Arial", Font.BOLD, 14);
 
-        // PANEL NORTE
+        // NORTE
         JPanel norte = new JPanel(new BorderLayout());
         norte.setOpaque(false);
         norte.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); 
@@ -85,7 +86,6 @@ public class PanelTablero extends JFrame {
         JPanel logoTitulo = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
         logoTitulo.setOpaque(false);
         
-        // CARGAMOS IMAGENES
         try {
             ImageIcon logoIcon = new ImageIcon(getClass().getResource("/images/LogoDeustoChessBK.png"));
             Image logoImage = logoIcon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
@@ -133,7 +133,7 @@ public class PanelTablero extends JFrame {
         JPanel contenedorTablero = new JPanel(new BorderLayout(5, 5));
         contenedorTablero.setOpaque(false);
         
-        // NUMEROS A LA IZQUIERDA
+        // Números a la IZQUIERDA
         JPanel panelNumeros = new JPanel(new GridLayout(8, 1));
         panelNumeros.setOpaque(false);
         panelNumeros.setPreferredSize(new Dimension(30, 725));
@@ -144,7 +144,7 @@ public class PanelTablero extends JFrame {
             panelNumeros.add(lblNum);
         }
         
-        // LETRAS ABAJO
+        // Letras ABAJO
         JPanel panelLetras = new JPanel(new GridLayout(1, 8));
         panelLetras.setOpaque(false);
         panelLetras.setPreferredSize(new Dimension(725, 30));
@@ -156,7 +156,7 @@ public class PanelTablero extends JFrame {
             panelLetras.add(lblLetra);
         }
         
-        // CREAMOS TABLERO
+        // Tablero
         JPanel tableroVisual = new JPanel(new GridLayout(8, 8));
         tableroVisual.setPreferredSize(new Dimension(725, 725)); 
         
@@ -177,7 +177,7 @@ public class PanelTablero extends JFrame {
                 casilla.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                    	clicCasilla(fila, col);
+                        clicCasilla(fila, col);
                     }
                 });
                 
@@ -235,7 +235,7 @@ public class PanelTablero extends JFrame {
         setVisible(true);
     }
     
-    // MÉTODO PARA LOS CLICS EN EL TABLERO
+    // MÉTODO PRINCIPAL PARA MANEJAR LOS CLICS EN EL TABLERO
     private void clicCasilla(int fila, int col) {
         Casilla casillaClickeada = tableroLogico.getCasillas(fila, col);
         Pieza piezaEnCasilla = casillaClickeada.getPieza();
@@ -243,7 +243,6 @@ public class PanelTablero extends JFrame {
         // CASO 1: No hay pieza seleccionada
         if (piezaSeleccionada == null) {
             if (piezaEnCasilla != null && piezaEnCasilla.getColor() == turnoActual) {
-                // Seleccionar esta pieza
                 piezaSeleccionada = piezaEnCasilla;
                 casillaSeleccionada = casillaClickeada;
                 
@@ -278,8 +277,19 @@ public class PanelTablero extends JFrame {
                 return;
             }
             
+            // SOLO ALUMNOS PUEDEN MOVERSE MANUALMENTE
+            if (!(piezaSeleccionada instanceof Alumno)) {
+                lblPiezaSeleccionada.setText("Solo los Alumnos pueden moverse manualmente");
+                JOptionPane.showMessageDialog(null, 
+                    "Movimiento restringido\n\n" +
+                    "Por el momento, solo los ALUMNOS pueden moverse manualmente.\n" +
+                    "Las demás piezas solo se mueven mediante sus habilidades especiales.");
+                return;
+            }
+            
             // Verificar si el movimiento es válido
             if (piezaSeleccionada.movimientoValido(fila, col, tableroLogico)) {
+                // Ejecutar el movimiento
                 realizarMovimiento(filaOrigen, colOrigen, fila, col);
                 
                 // Verificar si el Alumno llegó a la última fila para graduación
@@ -306,7 +316,7 @@ public class PanelTablero extends JFrame {
     }
     
     private void realizarMovimiento(int filaOrigen, int colOrigen, int filaDestino, int colDestino) {
-        // Capturar pieza
+        // Capturar pieza si existe
         Pieza piezaCapturada = tableroLogico.getCasillas(filaDestino, colDestino).getPieza();
         if (piezaCapturada != null) {
             System.out.println("Capturada: " + piezaCapturada.getNombre());
@@ -383,6 +393,7 @@ public class PanelTablero extends JFrame {
             }
         });
 
+        // IA generativa: colocar el panel izquierdo de habilidades correctamente
         p.add(lblTitulo);
         p.add(new JSeparator());
         p.add(Box.createVerticalStrut(20));
