@@ -30,6 +30,7 @@ import javax.swing.SwingUtilities;
 import bd.ConexionBD;
 import domain.Alumno;
 import domain.Becario;
+import domain.Bedel;
 import domain.Casilla;
 import domain.MaquinaExpendedora;
 import domain.Pieza;
@@ -72,7 +73,7 @@ public class PanelTablero extends JFrame {
         main.setLayout(new BorderLayout());
         setContentPane(main);
 
-        // Ajustamos colores a utilizar
+        // Ajustamos colores
         Color colorAzulDeusto = new Color(58, 117, 173); 
         Color colorFondoAzul = new Color(0, 123, 255); 
         Color colorTexto = new Color(230, 235, 255); 
@@ -174,13 +175,7 @@ public class PanelTablero extends JFrame {
                 final int fila = i;
                 final int col = j;
                 
-                casilla.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        clicCasilla(fila, col);
-                    }
-                });
-                
+                casilla.addActionListener(e -> clicCasilla(fila, col));
                 botonesCasillas[i][j] = casilla;
                 tableroVisual.add(casilla);
             }
@@ -196,31 +191,22 @@ public class PanelTablero extends JFrame {
         main.add(centro, BorderLayout.CENTER);
         
         // ACCIONES
-        btnSalir.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
-                bd.closeBD();
-            }
+        btnSalir.addActionListener(e -> {
+            System.exit(0);
+            bd.closeBD();
         });
         
-        btnVolverMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (ventanaAnterior != null) ventanaAnterior.setVisible(true);
-                setVisible(false);
-                dispose();
-            }
+        btnVolverMenu.addActionListener(e -> {
+            if (ventanaAnterior != null) ventanaAnterior.setVisible(true);
+            setVisible(false);
+            dispose();
         });
         
-        btnCerrarSesion.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setVisible(false);
-                dispose();
-                if (ventanaAnterior != null) ventanaAnterior.dispose(); 
-                new VentanaInicioSesion(bd); 
-            }
+        btnCerrarSesion.addActionListener(e -> {
+            setVisible(false);
+            dispose();
+            if (ventanaAnterior != null) ventanaAnterior.dispose(); 
+            new VentanaInicioSesion(bd); 
         });
         
         addWindowListener(new WindowAdapter() {
@@ -235,12 +221,10 @@ public class PanelTablero extends JFrame {
         setVisible(true);
     }
     
-    // MÉTODO PRINCIPAL PARA MANEJAR LOS CLICS EN EL TABLERO
     private void clicCasilla(int fila, int col) {
         Casilla casillaClickeada = tableroLogico.getCasillas(fila, col);
         Pieza piezaEnCasilla = casillaClickeada.getPieza();
         
-        // CASO 1: No hay pieza seleccionada
         if (piezaSeleccionada == null) {
             if (piezaEnCasilla != null && piezaEnCasilla.getColor() == turnoActual) {
                 piezaSeleccionada = piezaEnCasilla;
@@ -248,26 +232,24 @@ public class PanelTablero extends JFrame {
                 
                 lblPiezaSeleccionada.setText(piezaEnCasilla.getNombre() + " (" + piezaEnCasilla.getColor() + ")");
                 
-                // Habilitar botón de habilidad
+                // ACTUALIZADO → ahora incluye BEDEL
                 if (piezaEnCasilla instanceof Becario || 
                     piezaEnCasilla instanceof MaquinaExpendedora || 
                     piezaEnCasilla instanceof Secretaria || 
                     piezaEnCasilla instanceof Alumno || 
-                    piezaEnCasilla instanceof Rector) {
+                    piezaEnCasilla instanceof Rector ||
+                    piezaEnCasilla instanceof Bedel) {
                     btnUsarHabilidad.setEnabled(true);
                     btnUsarHabilidad.setText("USAR: " + piezaEnCasilla.getNombre());
                 } else {
                     btnUsarHabilidad.setEnabled(false);
                 }
                 
-                // Resaltar casilla seleccionada
                 resaltarCasilla(fila, col, true);
-                
             } else {
                 lblPiezaSeleccionada.setText("Selecciona una pieza de tu color");
             }
         } 
-        // CASO 2: Ya hay pieza seleccionada
         else {
             int filaOrigen = piezaSeleccionada.getFila();
             int colOrigen = piezaSeleccionada.getColumna();
@@ -277,58 +259,38 @@ public class PanelTablero extends JFrame {
                 return;
             }
             
-            // SOLO ALUMNOS PUEDEN MOVERSE MANUALMENTE
             if (!(piezaSeleccionada instanceof Alumno)) {
                 lblPiezaSeleccionada.setText("Solo los Alumnos pueden moverse manualmente");
-                JOptionPane.showMessageDialog(null, 
+                JOptionPane.showMessageDialog(this, 
                     "Movimiento restringido\n\n" +
-                    "Por el momento, solo los ALUMNOS pueden moverse manualmente.\n" +
-                    "Las demás piezas solo se mueven mediante sus habilidades especiales.");
+                    "Solo los ALUMNOS pueden moverse manualmente.\n" +
+                    "Las demás piezas solo se mueven con sus habilidades.");
                 return;
             }
             
-            // Verificar si el movimiento es válido
             if (piezaSeleccionada.movimientoValido(fila, col, tableroLogico)) {
-                // Ejecutar el movimiento
                 realizarMovimiento(filaOrigen, colOrigen, fila, col);
-                
-                // Verificar si el Alumno llegó a la última fila para graduación
                 if (piezaSeleccionada instanceof Alumno) {
                     int filaFinal = (piezaSeleccionada.getColor() == domain.Color.BLANCA) ? 7 : 0;
-                    if (fila == filaFinal) {
-                        piezaSeleccionada.usarHabilidad(tableroLogico);
-                    }
+                    if (fila == filaFinal) piezaSeleccionada.usarHabilidad(tableroLogico);
                 }
-                
-                // Cambiar turno
                 cambiarTurno();
-                
-                // Deseleccionar
                 deseleccionarPieza();
-                
-                // Actualizar tablero
                 actualizarTablero();
-                
             } else {
                 lblPiezaSeleccionada.setText("Movimiento inválido");
             }
         }
     }
     
-    private void realizarMovimiento(int filaOrigen, int colOrigen, int filaDestino, int colDestino) {
-        // Capturar pieza si existe
-        Pieza piezaCapturada = tableroLogico.getCasillas(filaDestino, colDestino).getPieza();
-        if (piezaCapturada != null) {
-            System.out.println("Capturada: " + piezaCapturada.getNombre());
-        }
+    private void realizarMovimiento(int fO, int cO, int fD, int cD) {
+        Pieza piezaCapturada = tableroLogico.getCasillas(fD, cD).getPieza();
+        if (piezaCapturada != null) System.out.println("Capturada: " + piezaCapturada.getNombre());
         
-        // Mover la pieza
-        tableroLogico.getCasillas(filaOrigen, colOrigen).setPieza(null);
-        tableroLogico.getCasillas(filaDestino, colDestino).setPieza(piezaSeleccionada);
-        
-        // Actualizar posición de la pieza
-        piezaSeleccionada.setFila(filaDestino);
-        piezaSeleccionada.setColumna(colDestino);
+        tableroLogico.getCasillas(fO, cO).setPieza(null);
+        tableroLogico.getCasillas(fD, cD).setPieza(piezaSeleccionada);
+        piezaSeleccionada.setFila(fD);
+        piezaSeleccionada.setColumna(cD);
     }
     
     private void cambiarTurno() {
@@ -348,11 +310,7 @@ public class PanelTablero extends JFrame {
     
     private void resaltarCasilla(int fila, int col, boolean resaltar) {
         JButton boton = botonesCasillas[fila][col];
-        if (resaltar) {
-            boton.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 3));
-        } else {
-            boton.setBorder(null);
-        }
+        boton.setBorder(resaltar ? BorderFactory.createLineBorder(Color.YELLOW, 3) : null);
     }
     
     private JPanel crearPanelIzquierdo(Color fondo, Color texto) {
@@ -386,14 +344,8 @@ public class PanelTablero extends JFrame {
         btnUsarHabilidad.setAlignmentX(JButton.CENTER_ALIGNMENT);
         btnUsarHabilidad.setEnabled(false);
         
-        btnUsarHabilidad.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ejecutarHabilidadEspecial();
-            }
-        });
+        btnUsarHabilidad.addActionListener(e -> ejecutarHabilidadEspecial());
 
-        // IA generativa: colocar el panel izquierdo de habilidades correctamente
         p.add(lblTitulo);
         p.add(new JSeparator());
         p.add(Box.createVerticalStrut(20));
@@ -414,24 +366,6 @@ public class PanelTablero extends JFrame {
         panel.setBorder(BorderFactory.createLineBorder(Color.BLACK)); 
         panel.setPreferredSize(new Dimension(350, 1)); 
 
-        JPanel pestanas = new JPanel(new GridLayout(1, 3));
-        Font fuenteBoton = new Font("Arial", Font.BOLD, 12);
-        Color oscurecerBK = fondo.darker(); 
-        
-        JButton btnJugar = new JButton("JUGAR");
-        estilarBoton(btnJugar, fuenteBoton, frente, oscurecerBK);
-        pestanas.add(btnJugar);
-
-        JButton btnMovimientos = new JButton("MOVS");
-        estilarBoton(btnMovimientos, fuenteBoton, frente, oscurecerBK);
-        pestanas.add(btnMovimientos);
-
-        JButton btnInformacion = new JButton("INFO");
-        estilarBoton(btnInformacion, fuenteBoton, frente, oscurecerBK);
-        pestanas.add(btnInformacion);
-
-        panel.add(pestanas, BorderLayout.NORTH);
-
         JTextArea logArea = new JTextArea("Log de Partida:\n- Inicio de juego.\n- Turno Blancas.");
         logArea.setEditable(false);
         logArea.setBackground(fondo.brighter()); 
@@ -440,98 +374,60 @@ public class PanelTablero extends JFrame {
         JScrollPane scroll = new JScrollPane(logArea);
         panel.add(scroll, BorderLayout.CENTER);
 
-        JPanel controles = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
-        controles.setBackground(oscurecerBK);
-        
-        JButton btnInicio = new JButton("|<");
-        JButton btnAtras = new JButton("<");
-        JButton btnAdelante = new JButton(">");
-        JButton btnFin = new JButton(">|");
-        
-        Color controlBg = Color.LIGHT_GRAY;
-        estilarBoton(btnInicio, new Font("Arial", Font.BOLD, 12), Color.BLACK, controlBg);
-        estilarBoton(btnAtras, new Font("Arial", Font.BOLD, 12), Color.BLACK, controlBg);
-        estilarBoton(btnAdelante, new Font("Arial", Font.BOLD, 12), Color.BLACK, controlBg);
-        estilarBoton(btnFin, new Font("Arial", Font.BOLD, 12), Color.BLACK, controlBg);
-
-        controles.add(btnInicio);
-        controles.add(btnAtras);
-        controles.add(btnAdelante);
-        controles.add(btnFin);
-        
-        panel.add(controles, BorderLayout.SOUTH);
-
         return panel;
     }
     
+    // === HABILIDADES ===
     private void ejecutarHabilidadEspecial() {
         if (piezaSeleccionada == null) return;
-        
         btnUsarHabilidad.setEnabled(false);
 
-        if (piezaSeleccionada instanceof Becario) {
+        if (piezaSeleccionada instanceof Becario ||
+            piezaSeleccionada instanceof Secretaria ||
+            piezaSeleccionada instanceof Alumno ||
+            piezaSeleccionada instanceof Rector ||
+            piezaSeleccionada instanceof Bedel) {
+            
             piezaSeleccionada.usarHabilidad(tableroLogico);
             actualizarTablero();
-        } else if (piezaSeleccionada instanceof MaquinaExpendedora) {
+        } 
+        else if (piezaSeleccionada instanceof MaquinaExpendedora) {
             MaquinaExpendedora maq = (MaquinaExpendedora) piezaSeleccionada;
             maq.usarHabilidadConDisplay(tableroLogico, lblPantallaMaquina);
-            
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(3000);
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                btnUsarHabilidad.setEnabled(true);
-                                actualizarTablero();
-                            }
-                        });
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+            new Thread(() -> {
+                try {
+                    Thread.sleep(3000);
+                    SwingUtilities.invokeLater(() -> {
+                        btnUsarHabilidad.setEnabled(true);
+                        actualizarTablero();
+                    });
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }).start();
-        } else if (piezaSeleccionada instanceof Secretaria) {
-            piezaSeleccionada.usarHabilidad(tableroLogico);
-            actualizarTablero();
-        } else if (piezaSeleccionada instanceof Alumno) {									
-            piezaSeleccionada.usarHabilidad(tableroLogico);
-            actualizarTablero();
-        } else if (piezaSeleccionada instanceof Rector) {
-            ((Rector) piezaSeleccionada).usarHabilidad(tableroLogico);
-            actualizarTablero();
         }
     }
 
     private void actualizarTablero() {
         for (int i = 0; i < 8; i++) {
-            for (int j = 0; j <= 7; j++) {
-                Casilla casillaLogica = tableroLogico.getCasillas(i, j);
-                Pieza pieza = casillaLogica.getPieza();
-                JButton boton = botonesCasillas[i][j];
+            for (int j = 0; j < 8; j++) {
+                Casilla c = tableroLogico.getCasillas(i, j);
+                Pieza p = c.getPieza();
+                JButton b = botonesCasillas[i][j];
                 
-                // Limpiar borde
-                if (piezaSeleccionada == null || 
-                    piezaSeleccionada.getFila() != i || 
-                    piezaSeleccionada.getColumna() != j) {
-                    boton.setBorder(null);
-                }
-                
-                if (pieza != null) {
-                    String rutaImagen = obtenerRutaImagen(pieza);
-                    URL imgURL = getClass().getResource(rutaImagen);
+                if (p != null) {
+                    String ruta = obtenerRutaImagen(p);
+                    URL imgURL = getClass().getResource(ruta);
                     if (imgURL != null) {
                         ImageIcon icon = new ImageIcon(imgURL);
                         Image imgEscalada = icon.getImage().getScaledInstance(85, 85, Image.SCALE_SMOOTH);
-                        boton.setIcon(new ImageIcon(imgEscalada));
+                        b.setIcon(new ImageIcon(imgEscalada));
                     } else {
-                        boton.setText(pieza.getNombre().substring(0, 2));
+                        b.setText(p.getNombre().substring(0, 2));
                     }
                 } else {
-                    boton.setIcon(null);
-                    boton.setText("");
+                    b.setIcon(null);
+                    b.setText("");
                 }
             }
         }
