@@ -232,7 +232,6 @@ public class PanelTablero extends JFrame {
                 
                 lblPiezaSeleccionada.setText(piezaEnCasilla.getNombre() + " (" + piezaEnCasilla.getColor() + ")");
                 
-                // ACTUALIZADO → ahora incluye BEDEL
                 if (piezaEnCasilla instanceof Becario || 
                     piezaEnCasilla instanceof MaquinaExpendedora || 
                     piezaEnCasilla instanceof Secretaria || 
@@ -377,7 +376,7 @@ public class PanelTablero extends JFrame {
         return panel;
     }
     
-    // === HABILIDADES ===
+    // Ejecutar habilidades
     private void ejecutarHabilidadEspecial() {
         if (piezaSeleccionada == null) return;
         btnUsarHabilidad.setEnabled(false);
