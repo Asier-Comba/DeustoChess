@@ -8,6 +8,7 @@ import javax.swing.SwingUtilities;
 public class MaquinaExpendedora extends Pieza {
 	
 	private JLabel displayExterno; // Para actualizar la pantalla del panel
+	private boolean premio;
 	
 	public MaquinaExpendedora(String nombre, Color color, int fila, int columna, boolean haUsadoHabilidad) {
 		super(nombre, color, fila, columna);
@@ -33,7 +34,7 @@ public class MaquinaExpendedora extends Pieza {
 				String[] simbolos = {"♕", "♔", "♙", "♖"}; 
 				Random random = new Random();
 				String resultadoFinal = "";
-				boolean premio = false;
+				premio = false;
 
 				int giros = 15; 
 				
@@ -95,5 +96,13 @@ public class MaquinaExpendedora extends Pieza {
 		});
 
 		hiloTragaperras.start();
+	}
+
+	public boolean isPremio() {
+		return premio;
+	}
+
+	public void setPremio(boolean premio) {
+		this.premio = premio;
 	}
 }

@@ -19,7 +19,7 @@ public class VentanaCrearCuenta extends JFrame {
 	private ConexionBD bd;
 
 	public VentanaCrearCuenta(JFrame va, ConexionBD bd) {
-		this.bd = bd;
+		this.setBd(bd);
 		ventanaActual = this;
 		ventanaAnterior = va;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -343,6 +343,14 @@ public class VentanaCrearCuenta extends JFrame {
 	
 	public VentanaCrearCuenta(JFrame va) {
 		this(va, null);
+	}
+
+	public ConexionBD getBd() {
+		return bd;
+	}
+
+	public void setBd(ConexionBD bd) {
+		this.bd = bd;
 	}
 
 }

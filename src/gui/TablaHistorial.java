@@ -1,14 +1,8 @@
 package gui;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -34,7 +28,7 @@ public class TablaHistorial extends JFrame{
 		this.ventanaAnterior = va;
 		
 		setBounds(300, 200, 600, 500);
-		this.bd = bd;
+		this.setBd(bd);
 		
 		pCentro = new JPanel();
 		pSur = new JPanel();
@@ -96,6 +90,14 @@ public class TablaHistorial extends JFrame{
 	        });
 	
 		setVisible(true);
+	}
+
+	public ConexionBD getBd() {
+		return bd;
+	}
+
+	public void setBd(ConexionBD bd) {
+		this.bd = bd;
 	}
 }
 

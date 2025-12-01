@@ -14,7 +14,7 @@ public class Rector extends Pieza {
 		super(nombre, color, fila, columna);
 		this.haUsadoHabilidad = haUsadoHabilidad;
 		this.enExpediente = enExpediente;
-		this.jaqueMate = jaqueMate;
+		this.setJaqueMate(jaqueMate);
 	}
 
 	public boolean isHaUsadoHabilidad() {
@@ -89,5 +89,13 @@ public class Rector extends Pieza {
 	
 	private void msg(String texto) {
 		SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, texto));
+	}
+
+	public boolean isJaqueMate() {
+		return jaqueMate;
+	}
+
+	public void setJaqueMate(boolean jaqueMate) {
+		this.jaqueMate = jaqueMate;
 	}
 }

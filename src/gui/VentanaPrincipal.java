@@ -4,8 +4,6 @@ import java.awt.*;
 import bd.ConexionBD;
 import javax.swing.*;
 
-import bd.ConexionBD;
-
 public class VentanaPrincipal extends JFrame {
 
     private static final long serialVersionUID = 1L;
@@ -19,7 +17,7 @@ public class VentanaPrincipal extends JFrame {
     public VentanaPrincipal(JFrame va, ConexionBD bd) {
         ventanaActual = this;
         ventanaAnterior = va;
-        this.bd = bd;
+        this.setBd(bd);
 
         // === CONFIGURACIÓN BÁSICA DE LA VENTANA ===
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -163,6 +161,14 @@ public class VentanaPrincipal extends JFrame {
         // === HACER VISIBLE ===
         setVisible(true);
     }
+
+	public ConexionBD getBd() {
+		return bd;
+	}
+
+	public void setBd(ConexionBD bd) {
+		this.bd = bd;
+	}
    
 }
 

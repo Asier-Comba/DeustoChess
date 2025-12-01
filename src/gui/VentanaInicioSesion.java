@@ -3,9 +3,8 @@ package gui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import bd.ConexionBD;
 
-import bd.ConexionBD;
-import bd.ConexionBD;
 public class VentanaInicioSesion extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -17,7 +16,7 @@ public class VentanaInicioSesion extends JFrame {
 	private ConexionBD bd;
 	
 	public VentanaInicioSesion(ConexionBD bd) {
-		this.bd = bd;
+		this.setBd(bd);
 		ventanaActual = this;
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setSize(500,700);
@@ -196,5 +195,13 @@ public class VentanaInicioSesion extends JFrame {
 		this.setLocationRelativeTo(null);
 		
 		setVisible(true);
+	}
+
+	public ConexionBD getBd() {
+		return bd;
+	}
+
+	public void setBd(ConexionBD bd) {
+		this.bd = bd;
 	}
 }
