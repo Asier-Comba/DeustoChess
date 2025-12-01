@@ -9,6 +9,8 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.net.URL;
 
 import javax.swing.BorderFactory;
@@ -41,12 +43,15 @@ public class PanelTablero extends JFrame {
     
     private Tablero tableroLogico;
     private Casilla casillaSeleccionada; 
+    private Pieza piezaSeleccionada;
     
     private JButton[][] botonesCasillas;
     
     private JLabel lblPiezaSeleccionada;
     private JLabel lblPantallaMaquina; 
     private JButton btnUsarHabilidad;
+    
+    private domain.Color turnoActual;
  
 	private ConexionBD bd;
     
@@ -55,6 +60,8 @@ public class PanelTablero extends JFrame {
         this.bd = bd;
         this.tableroLogico = new Tablero();
         this.botonesCasillas = new JButton[8][8];
+        this.piezaSeleccionada = null;
+        this.turnoActual = domain.Color.BLANCA; // Comienzan las blancas
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("DeustoChess - Partida 1 vs 1");
@@ -64,13 +71,13 @@ public class PanelTablero extends JFrame {
         main.setLayout(new BorderLayout());
         setContentPane(main);
 
-        // === SE ELIGE EL COLOR ===
+        // COLORES A UTILIZAR
         Color colorAzulDeusto = new Color(58, 117, 173); 
         Color colorFondoAzul = new Color(0, 123, 255); 
         Color colorTexto = new Color(230, 235, 255); 
         Font buttonFont = new Font("Arial", Font.BOLD, 14);
 
-        // NORTE
+        // PANEL NORTE
         JPanel norte = new JPanel(new BorderLayout());
         norte.setOpaque(false);
         norte.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); 
@@ -78,6 +85,7 @@ public class PanelTablero extends JFrame {
         JPanel logoTitulo = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
         logoTitulo.setOpaque(false);
         
+        // CARGAMOS IMAGENES
         try {
             ImageIcon logoIcon = new ImageIcon(getClass().getResource("/images/LogoDeustoChessBK.png"));
             Image logoImage = logoIcon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
@@ -122,11 +130,10 @@ public class PanelTablero extends JFrame {
         centro.setOpaque(false);
         centro.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
-        // Panel contenedor para tablero y coordenadas
         JPanel contenedorTablero = new JPanel(new BorderLayout(5, 5));
         contenedorTablero.setOpaque(false);
         
-        // Números a la IZQUIERDA (8 a 1, de arriba abajo)
+        // NUMEROS A LA IZQUIERDA
         JPanel panelNumeros = new JPanel(new GridLayout(8, 1));
         panelNumeros.setOpaque(false);
         panelNumeros.setPreferredSize(new Dimension(30, 725));
@@ -137,7 +144,7 @@ public class PanelTablero extends JFrame {
             panelNumeros.add(lblNum);
         }
         
-        // Letras ABAJO (A a H)
+        // LETRAS ABAJO
         JPanel panelLetras = new JPanel(new GridLayout(1, 8));
         panelLetras.setOpaque(false);
         panelLetras.setPreferredSize(new Dimension(725, 30));
@@ -149,7 +156,7 @@ public class PanelTablero extends JFrame {
             panelLetras.add(lblLetra);
         }
         
-        // Tablero
+        // CREAMOS TABLERO
         JPanel tableroVisual = new JPanel(new GridLayout(8, 8));
         tableroVisual.setPreferredSize(new Dimension(725, 725)); 
         
@@ -170,7 +177,7 @@ public class PanelTablero extends JFrame {
                 casilla.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        seleccionarCasilla(fila, col);
+                    	clicCasilla(fila, col);
                     }
                 });
                 
@@ -181,7 +188,6 @@ public class PanelTablero extends JFrame {
         
         actualizarTablero();
         
-        // Añadir componentes al contenedor
         contenedorTablero.add(panelNumeros, BorderLayout.WEST);
         contenedorTablero.add(tableroVisual, BorderLayout.CENTER);
         contenedorTablero.add(panelLetras, BorderLayout.SOUTH);
@@ -216,18 +222,127 @@ public class PanelTablero extends JFrame {
                 new VentanaInicioSesion(bd); 
             }
         });
-        addWindowListener(new java.awt.event.WindowAdapter() {
+        
+        addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                // Ejecutar la lógica de cierre de la base de datos
+            public void windowClosing(WindowEvent windowEvent) {
                 bd.closeBD();
-                
-                // Finalizar la aplicación
                 System.exit(0);
             }
         });
+        
         setLocationRelativeTo(null); 
         setVisible(true);
+    }
+    
+    // MÉTODO PARA LOS CLICS EN EL TABLERO
+    private void clicCasilla(int fila, int col) {
+        Casilla casillaClickeada = tableroLogico.getCasillas(fila, col);
+        Pieza piezaEnCasilla = casillaClickeada.getPieza();
+        
+        // CASO 1: No hay pieza seleccionada
+        if (piezaSeleccionada == null) {
+            if (piezaEnCasilla != null && piezaEnCasilla.getColor() == turnoActual) {
+                // Seleccionar esta pieza
+                piezaSeleccionada = piezaEnCasilla;
+                casillaSeleccionada = casillaClickeada;
+                
+                lblPiezaSeleccionada.setText(piezaEnCasilla.getNombre() + " (" + piezaEnCasilla.getColor() + ")");
+                
+                // Habilitar botón de habilidad
+                if (piezaEnCasilla instanceof Becario || 
+                    piezaEnCasilla instanceof MaquinaExpendedora || 
+                    piezaEnCasilla instanceof Secretaria || 
+                    piezaEnCasilla instanceof Alumno || 
+                    piezaEnCasilla instanceof Rector) {
+                    btnUsarHabilidad.setEnabled(true);
+                    btnUsarHabilidad.setText("USAR: " + piezaEnCasilla.getNombre());
+                } else {
+                    btnUsarHabilidad.setEnabled(false);
+                }
+                
+                // Resaltar casilla seleccionada
+                resaltarCasilla(fila, col, true);
+                
+            } else {
+                lblPiezaSeleccionada.setText("Selecciona una pieza de tu color");
+            }
+        } 
+        // CASO 2: Ya hay pieza seleccionada
+        else {
+            int filaOrigen = piezaSeleccionada.getFila();
+            int colOrigen = piezaSeleccionada.getColumna();
+            
+            if (fila == filaOrigen && col == colOrigen) {
+                deseleccionarPieza();
+                return;
+            }
+            
+            // Verificar si el movimiento es válido
+            if (piezaSeleccionada.movimientoValido(fila, col, tableroLogico)) {
+                realizarMovimiento(filaOrigen, colOrigen, fila, col);
+                
+                // Verificar si el Alumno llegó a la última fila para graduación
+                if (piezaSeleccionada instanceof Alumno) {
+                    int filaFinal = (piezaSeleccionada.getColor() == domain.Color.BLANCA) ? 7 : 0;
+                    if (fila == filaFinal) {
+                        piezaSeleccionada.usarHabilidad(tableroLogico);
+                    }
+                }
+                
+                // Cambiar turno
+                cambiarTurno();
+                
+                // Deseleccionar
+                deseleccionarPieza();
+                
+                // Actualizar tablero
+                actualizarTablero();
+                
+            } else {
+                lblPiezaSeleccionada.setText("Movimiento inválido");
+            }
+        }
+    }
+    
+    private void realizarMovimiento(int filaOrigen, int colOrigen, int filaDestino, int colDestino) {
+        // Capturar pieza
+        Pieza piezaCapturada = tableroLogico.getCasillas(filaDestino, colDestino).getPieza();
+        if (piezaCapturada != null) {
+            System.out.println("Capturada: " + piezaCapturada.getNombre());
+        }
+        
+        // Mover la pieza
+        tableroLogico.getCasillas(filaOrigen, colOrigen).setPieza(null);
+        tableroLogico.getCasillas(filaDestino, colDestino).setPieza(piezaSeleccionada);
+        
+        // Actualizar posición de la pieza
+        piezaSeleccionada.setFila(filaDestino);
+        piezaSeleccionada.setColumna(colDestino);
+    }
+    
+    private void cambiarTurno() {
+        turnoActual = (turnoActual == domain.Color.BLANCA) ? domain.Color.NEGRA : domain.Color.BLANCA;
+        System.out.println("Turno de: " + turnoActual);
+    }
+    
+    private void deseleccionarPieza() {
+        if (piezaSeleccionada != null) {
+            resaltarCasilla(piezaSeleccionada.getFila(), piezaSeleccionada.getColumna(), false);
+        }
+        piezaSeleccionada = null;
+        casillaSeleccionada = null;
+        lblPiezaSeleccionada.setText("Seleccione pieza...");
+        btnUsarHabilidad.setEnabled(false);
+    }
+    
+    private void resaltarCasilla(int fila, int col, boolean resaltar) {
+        JButton boton = botonesCasillas[fila][col];
+        if (resaltar) {
+            boton.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 3));
+        } else {
+            boton.setBorder(null);
+        }
     }
     
     private JPanel crearPanelIzquierdo(Color fondo, Color texto) {
@@ -338,38 +453,18 @@ public class PanelTablero extends JFrame {
         return panel;
     }
     
-    private void seleccionarCasilla(int f, int c) {
-        this.casillaSeleccionada = tableroLogico.getCasillas(f, c);
-        Pieza p = casillaSeleccionada.getPieza();
-        
-        if (p != null) {
-            lblPiezaSeleccionada.setText(p.getNombre() + " (" + p.getColor() + ")");
-            if (p instanceof Becario || p instanceof MaquinaExpendedora || p instanceof Secretaria || p instanceof Alumno || p instanceof Rector) {
-                btnUsarHabilidad.setEnabled(true);
-                btnUsarHabilidad.setText("USAR: " + p.getNombre());
-            } else {
-                btnUsarHabilidad.setEnabled(false);
-                btnUsarHabilidad.setText("Sin habilidad");
-            }
-        } else {
-            lblPiezaSeleccionada.setText("Casilla Vacía");
-            btnUsarHabilidad.setEnabled(false);
-        }
-    }
-    
     private void ejecutarHabilidadEspecial() {
-        if (casillaSeleccionada == null) return;
-        Pieza p = casillaSeleccionada.getPieza();
+        if (piezaSeleccionada == null) return;
+        
         btnUsarHabilidad.setEnabled(false);
 
-        if (p instanceof Becario) {
-            p.usarHabilidad(tableroLogico);
+        if (piezaSeleccionada instanceof Becario) {
+            piezaSeleccionada.usarHabilidad(tableroLogico);
             actualizarTablero();
-        } else if (p instanceof MaquinaExpendedora) {
-            MaquinaExpendedora maq = (MaquinaExpendedora) p;
+        } else if (piezaSeleccionada instanceof MaquinaExpendedora) {
+            MaquinaExpendedora maq = (MaquinaExpendedora) piezaSeleccionada;
             maq.usarHabilidadConDisplay(tableroLogico, lblPantallaMaquina);
             
-            // Habilitar el botón después de 3 segundos
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -387,14 +482,14 @@ public class PanelTablero extends JFrame {
                     }
                 }
             }).start();
-        } else if (p instanceof Secretaria) {
-            p.usarHabilidad(tableroLogico);
+        } else if (piezaSeleccionada instanceof Secretaria) {
+            piezaSeleccionada.usarHabilidad(tableroLogico);
             actualizarTablero();
-        } else if (p instanceof Alumno) {									
-            p.usarHabilidad(tableroLogico);
+        } else if (piezaSeleccionada instanceof Alumno) {									
+            piezaSeleccionada.usarHabilidad(tableroLogico);
             actualizarTablero();
-        } else if (p instanceof Rector) {
-            ((Rector) p).usarHabilidad(tableroLogico);
+        } else if (piezaSeleccionada instanceof Rector) {
+            ((Rector) piezaSeleccionada).usarHabilidad(tableroLogico);
             actualizarTablero();
         }
     }
@@ -405,6 +500,13 @@ public class PanelTablero extends JFrame {
                 Casilla casillaLogica = tableroLogico.getCasillas(i, j);
                 Pieza pieza = casillaLogica.getPieza();
                 JButton boton = botonesCasillas[i][j];
+                
+                // Limpiar borde
+                if (piezaSeleccionada == null || 
+                    piezaSeleccionada.getFila() != i || 
+                    piezaSeleccionada.getColumna() != j) {
+                    boton.setBorder(null);
+                }
                 
                 if (pieza != null) {
                     String rutaImagen = obtenerRutaImagen(pieza);
