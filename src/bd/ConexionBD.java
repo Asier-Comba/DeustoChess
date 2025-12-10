@@ -219,7 +219,7 @@ public class ConexionBD {
 	    List<Historial> lHistorial = new ArrayList<>();
 	    
 	    // === CONSULTA SQL PARA OBTENER TODOS LOS REGISTROS ===
-	    String sql = "SELECT * FROM Historial";
+	    String sql = "SELECT idJ, jugadorNom, jugadorApell, ganadas, perdidas FROM Historial";
 	    
 	    try {
 	        // === PREPARAR LA SENTENCIA SQL ===
