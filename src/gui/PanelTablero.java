@@ -46,7 +46,6 @@ public class PanelTablero extends JFrame {
     private Casilla casillaSeleccionada; 
     private Pieza piezaSeleccionada;  
     
-    // Matriz de botones que representa visualmente el tablero
     private JButton[][] botonesCasillas;
     
     private JLabel lblPiezaSeleccionada;
@@ -55,10 +54,16 @@ public class PanelTablero extends JFrame {
     
     // Control de turnos
     private domain.Color turnoActual;
+
+    // Efectos de turno (Máquina)
+    private int movimientosExtra;
+    private boolean perderTurno;
+
+    // Log real
+    private JTextArea logArea;
  
     private ConexionBD bd;
     
-    // Inicializamos la ventana y sus componentes
     public PanelTablero(JFrame va, ConexionBD bd) {
         this.ventanaAnterior = va;
         this.setBd(bd);
@@ -66,18 +71,20 @@ public class PanelTablero extends JFrame {
         this.tableroLogico = new Tablero();
         this.botonesCasillas = new JButton[8][8];
         this.piezaSeleccionada = null;
-        this.turnoActual = domain.Color.BLANCA; // Comienzan las blancas
+        this.turnoActual = domain.Color.BLANCA;
+
+        // Máquina
+        this.movimientosExtra = 0;
+        this.perderTurno = false;
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("DeustoChess - Partida 1 vs 1");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-        // Panel principal con imagen de fondo
         PanelConFondo main = new PanelConFondo("/images/FondoJuego.png");
         main.setLayout(new BorderLayout());
         setContentPane(main);
 
-        // Paleta de colores y fuentes
         Color colorAzulDeusto = new Color(58, 117, 173); 
         Color colorFondoAzul = new Color(0, 123, 255); 
         Color colorTexto = new Color(230, 235, 255); 
@@ -85,10 +92,9 @@ public class PanelTablero extends JFrame {
 
         // PANEL NORTE
         JPanel norte = new JPanel(new BorderLayout());
-        norte.setOpaque(false); // Transparente para ver el fondo
+        norte.setOpaque(false);
         norte.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); 
         
-        // Parte izquierda: Logo y Título
         JPanel logoTitulo = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
         logoTitulo.setOpaque(false);
         
@@ -106,7 +112,6 @@ public class PanelTablero extends JFrame {
         logoTitulo.add(lblTitulo);
         norte.add(logoTitulo, BorderLayout.WEST);
 
-        // Parte derecha: Botones de navegación
         JPanel botonesVentana = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10)); 
         botonesVentana.setOpaque(false);
         
@@ -126,16 +131,13 @@ public class PanelTablero extends JFrame {
         
         main.add(norte, BorderLayout.NORTH);
                 
-        // PANELES LATERALES
-        // Panel izquierdo: Habilidades especiales y pieza seleccionada
         JPanel panelIzquierdo = crearPanelIzquierdo(colorFondoAzul, colorTexto);
         main.add(panelIzquierdo, BorderLayout.WEST);
         
-        // Panel derecho: Log de movimientos e historial (Por implementar funcionalidad)
         JPanel panelDerecho = crearPanelLateral(colorFondoAzul, colorTexto);
         main.add(panelDerecho, BorderLayout.EAST);
 
-        // PANEL CENTRAL: TABLERO
+        // TABLERO
         JPanel centro = new JPanel(new FlowLayout(FlowLayout.CENTER));
         centro.setOpaque(false);
         centro.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -143,7 +145,6 @@ public class PanelTablero extends JFrame {
         JPanel contenedorTablero = new JPanel(new BorderLayout(5, 5));
         contenedorTablero.setOpaque(false);
         
-        // Coordenadas del 1-8 a la izquierda
         JPanel panelNumeros = new JPanel(new GridLayout(8, 1));
         panelNumeros.setOpaque(false);
         panelNumeros.setPreferredSize(new Dimension(30, 725));
@@ -154,7 +155,6 @@ public class PanelTablero extends JFrame {
             panelNumeros.add(lblNum);
         }
         
-        // Coordenadas alfabéticas de A-H abajo
         JPanel panelLetras = new JPanel(new GridLayout(1, 8));
         panelLetras.setOpaque(false);
         panelLetras.setPreferredSize(new Dimension(725, 30));
@@ -190,7 +190,6 @@ public class PanelTablero extends JFrame {
             }
         }
         
-        // Colocamos las piezas en los botones creados
         actualizarTablero();
         
         contenedorTablero.add(panelNumeros, BorderLayout.WEST);
@@ -200,10 +199,10 @@ public class PanelTablero extends JFrame {
         centro.add(contenedorTablero);
         main.add(centro, BorderLayout.CENTER);
         
-        // EVENTOS DE BOTONES SUPERIORES
+        // BOTONES SUPERIORES
         btnSalir.addActionListener(e -> {
+            if (bd != null) bd.closeBD();
             System.exit(0);
-            bd.closeBD();
         });
         
         btnVolverMenu.addActionListener(e -> {
@@ -219,34 +218,34 @@ public class PanelTablero extends JFrame {
             new VentanaInicioSesion(bd); 
         });
         
-        // Listener para cerrar la BD correctamente
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent windowEvent) {
-                bd.closeBD();
+                if (bd != null) bd.closeBD();
                 System.exit(0);
             }
         });
         
+        escribirLog("Inicio de juego.");
+        escribirLog("Turno: " + turnoActual);
+
         setLocationRelativeTo(null); 
         setVisible(true);
     }
     
-    // Manejos de click en casilla
+    // CLICK EN CASILLA
     private void clicCasilla(int fila, int col) {
         Casilla casillaClickeada = tableroLogico.getCasillas(fila, col);
         Pieza piezaEnCasilla = casillaClickeada.getPieza();
         
-        // CASO 1: No hay pieza seleccionada previamente
+        // CASO 1: no hay pieza seleccionada
         if (piezaSeleccionada == null) {
-            // Verificamos si hay pieza y si es del color del turno actual
             if (piezaEnCasilla != null && piezaEnCasilla.getColor() == turnoActual) {
                 piezaSeleccionada = piezaEnCasilla;
                 setCasillaSeleccionada(casillaClickeada);
                 
                 lblPiezaSeleccionada.setText(piezaEnCasilla.getNombre() + " (" + piezaEnCasilla.getColor() + ")");
                 
-                // Habilitar botón de habilidad
                 if (piezaEnCasilla instanceof Becario || piezaEnCasilla instanceof MaquinaExpendedora || 
                     piezaEnCasilla instanceof Secretaria || piezaEnCasilla instanceof Alumno || 
                     piezaEnCasilla instanceof Rector || piezaEnCasilla instanceof Bedel) {
@@ -256,49 +255,50 @@ public class PanelTablero extends JFrame {
                     btnUsarHabilidad.setEnabled(false);
                 }
                 
-                // Resaltar la casilla seleccionada
                 resaltarCasilla(fila, col, true);
             } else {
                 lblPiezaSeleccionada.setText("Selecciona una pieza de tu color");
             }
-        } 
-        // CASO 2: Ya hay una pieza seleccionada
-        else {
-            int filaOrigen = piezaSeleccionada.getFila();
-            int colOrigen = piezaSeleccionada.getColumna();
-            
-            // Deseleccionamos clicando en la misma casilla
-            if (fila == filaOrigen && col == colOrigen) {
-                deseleccionarPieza();
-                return;
+            return;
+        }
+        
+        // CASO 2: ya hay pieza seleccionada
+        int filaOrigen = piezaSeleccionada.getFila();
+        int colOrigen = piezaSeleccionada.getColumna();
+        
+        // deselección
+        if (fila == filaOrigen && col == colOrigen) {
+            deseleccionarPieza();
+            return;
+        }
+        
+        // si clicas una pieza aliada, cambias selección
+        if (piezaEnCasilla != null && piezaEnCasilla.getColor() == turnoActual) {
+            resaltarCasilla(filaOrigen, colOrigen, false);
+            piezaSeleccionada = piezaEnCasilla;
+            setCasillaSeleccionada(casillaClickeada);
+            lblPiezaSeleccionada.setText(piezaEnCasilla.getNombre() + " (" + piezaEnCasilla.getColor() + ")");
+            resaltarCasilla(fila, col, true);
+            return;
+        }
+        
+        // movimiento normal: cualquier pieza que tenga movimientoValido implementado
+        if (piezaSeleccionada.movimientoValido(fila, col, tableroLogico)) {
+            realizarMovimiento(filaOrigen, colOrigen, fila, col);
+
+            escribirLog("Movimiento: " + piezaSeleccionada.getNombre() + " -> " + coordHumana(fila, col));
+
+            // Promoción de Alumno
+            if (piezaSeleccionada instanceof Alumno) {
+                int filaFinal = (piezaSeleccionada.getColor() == domain.Color.BLANCA) ? 7 : 0;
+                if (fila == filaFinal) piezaSeleccionada.usarHabilidad(tableroLogico);
             }
-            
-            // RESTRICCIÓN MOMENTÁNEA: Solo los Alumnos se mueven manualmente (los otros por habilidades o reglas especiales)
-            if (!(piezaSeleccionada instanceof Alumno)) {
-                lblPiezaSeleccionada.setText("Solo los Alumnos pueden moverse manualmente");
-                JOptionPane.showMessageDialog(this, 
-                    "Movimiento restringido temporalmente\n\n" +
-                    "Solo los ALUMNOS pueden moverse manualmente.\n" +
-                    "Las demás piezas solo se mueven con sus habilidades.");
-                return;
-            }
-            
-            // Verificar si el movimiento es válido
-            if (piezaSeleccionada.movimientoValido(fila, col, tableroLogico)) {
-                realizarMovimiento(filaOrigen, colOrigen, fila, col);
-                
-                // Habilidad especial para Alumno al llegar a la casilla de promoción
-                if (piezaSeleccionada instanceof Alumno) {
-                    int filaFinal = (piezaSeleccionada.getColor() == domain.Color.BLANCA) ? 7 : 0;
-                    if (fila == filaFinal) piezaSeleccionada.usarHabilidad(tableroLogico);
-                }
-                
-                cambiarTurno();
-                deseleccionarPieza();
-                actualizarTablero();
-            } else {
-                lblPiezaSeleccionada.setText("Movimiento inválido");
-            }
+
+            terminarAccionYTurno();
+            deseleccionarPieza();
+            actualizarTablero();
+        } else {
+            lblPiezaSeleccionada.setText("Movimiento inválido");
         }
     }
     
@@ -306,7 +306,7 @@ public class PanelTablero extends JFrame {
         Pieza piezaCapturada = tableroLogico.getCasillas(fD, cD).getPieza();
         
         if (piezaCapturada != null) {
-        	System.out.println("Capturada: " + piezaCapturada.getNombre());
+        	escribirLog("Capturada: " + piezaCapturada.getNombre());
         }
         
         tableroLogico.getCasillas(fO, cO).setPieza(null);
@@ -315,14 +315,30 @@ public class PanelTablero extends JFrame {
         piezaSeleccionada.setFila(fD);
         piezaSeleccionada.setColumna(cD);
     }
+
+    // Turnos con efecto Máquina
+    private void terminarAccionYTurno() {
+        if (perderTurno) {
+            perderTurno = false;
+            cambiarTurno();
+            return;
+        }
+
+        if (movimientosExtra > 0) {
+            movimientosExtra--;
+            escribirLog("Movimiento extra activo. Sigue el turno: " + turnoActual);
+            return;
+        }
+
+        cambiarTurno();
+    }
     
-    // Alternar el turno entre blancas y azules
     private void cambiarTurno() {
         turnoActual = (turnoActual == domain.Color.BLANCA) ? domain.Color.NEGRA : domain.Color.BLANCA;
+        escribirLog("Turno: " + turnoActual);
         System.out.println("Turno de: " + turnoActual);
     }
     
-    // Limpiar estado de selección
     private void deseleccionarPieza() {
         if (piezaSeleccionada != null) {
             resaltarCasilla(piezaSeleccionada.getFila(), piezaSeleccionada.getColumna(), false);
@@ -335,7 +351,6 @@ public class PanelTablero extends JFrame {
     
     private void resaltarCasilla(int fila, int col, boolean resaltar) {
         JButton boton = botonesCasillas[fila][col];
-        
         if (resaltar) {
             boton.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 3));
         } else {
@@ -343,7 +358,6 @@ public class PanelTablero extends JFrame {
         }
     }
     
-    // Panel izquierdo donde se activarán habs especiales y selección de pieza
     private JPanel crearPanelIzquierdo(Color fondo, Color texto) {
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -377,7 +391,6 @@ public class PanelTablero extends JFrame {
         
         btnUsarHabilidad.addActionListener(e -> ejecutarHabilidadEspecial());
         
-        // Elementos visuales y espaciadores (IA GENERATIVA)
         p.add(lblTitulo);
         p.add(new JSeparator());
         p.add(Box.createVerticalStrut(20));
@@ -391,7 +404,6 @@ public class PanelTablero extends JFrame {
         return p;
     }
 
-    // Panel lateral derecho para guardar los movimientos (POR IMPLEMENTAR FUNCIONALIDAD)
     private JPanel crearPanelLateral(Color fondo, Color frente) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(fondo);
@@ -399,7 +411,6 @@ public class PanelTablero extends JFrame {
         panel.setBorder(BorderFactory.createLineBorder(Color.BLACK)); 
         panel.setPreferredSize(new Dimension(350, 1)); 
 
-        // Panel pestañas superior
         JPanel pestanas = new JPanel(new GridLayout(1, 3));
         Font fuenteBoton = new Font("Arial", Font.BOLD, 12);
         Color oscurecerBK = fondo.darker(); 
@@ -418,7 +429,8 @@ public class PanelTablero extends JFrame {
         
         panel.add(pestanas, BorderLayout.NORTH);
 
-        JTextArea logArea = new JTextArea("Log de Partida:\n- Inicio de juego.\n- Turno Blancas.");
+        // LOG (ahora sí, campo)
+        logArea = new JTextArea("");
         logArea.setEditable(false);
         logArea.setBackground(fondo.brighter()); 
         logArea.setForeground(Color.BLACK);
@@ -429,33 +441,15 @@ public class PanelTablero extends JFrame {
 
         JPanel controles = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
         controles.setBackground(oscurecerBK);
-        
-        JButton btnInicio = new JButton("|<");
-        JButton btnAtras = new JButton("<");
-        JButton btnAdelante = new JButton(">");
-        JButton btnFin = new JButton(">|");
-        
-        Color controlBg = Color.LIGHT_GRAY;
-        estilarBoton(btnInicio, new Font("Arial", Font.BOLD, 12), Color.BLACK, controlBg);
-        estilarBoton(btnAtras, new Font("Arial", Font.BOLD, 12), Color.BLACK, controlBg);
-        estilarBoton(btnAdelante, new Font("Arial", Font.BOLD, 12), Color.BLACK, controlBg);
-        estilarBoton(btnFin, new Font("Arial", Font.BOLD, 12), Color.BLACK, controlBg);
-        
-        controles.add(btnInicio);
-        controles.add(btnAtras);
-        controles.add(btnAdelante);
-        controles.add(btnFin);
-        
         panel.add(controles, BorderLayout.SOUTH);
+
         return panel;
     }
     
-    // Ejecutar habilidades especiales según el tipo de pieza
     private void ejecutarHabilidadEspecial() {
         if (piezaSeleccionada == null) return;
         btnUsarHabilidad.setEnabled(false);
 
-        // Habilidades que modifican el tablero
         if (piezaSeleccionada instanceof Becario ||
             piezaSeleccionada instanceof Secretaria ||
             piezaSeleccionada instanceof Alumno ||
@@ -463,9 +457,13 @@ public class PanelTablero extends JFrame {
             piezaSeleccionada instanceof Bedel) {
             
             piezaSeleccionada.usarHabilidad(tableroLogico);
+            escribirLog("Habilidad usada: " + piezaSeleccionada.getNombre());
             actualizarTablero();
+
+            // Para que “usar habilidad” cuente como acción del turno (como en clase)
+            terminarAccionYTurno();
+            deseleccionarPieza();
         } 
-        // Caso de la máquina expendedora: interactúa con el display
         else if (piezaSeleccionada instanceof MaquinaExpendedora) {
             MaquinaExpendedora maq = (MaquinaExpendedora) piezaSeleccionada;
             maq.usarHabilidadConDisplay(tableroLogico, lblPantallaMaquina);
@@ -474,8 +472,25 @@ public class PanelTablero extends JFrame {
                 try {
                     Thread.sleep(3000);
                     SwingUtilities.invokeLater(() -> {
+
+                        // APLICAR EFECTO DE MÁQUINA AL TURNO
+                        if (maq.isPremio()) {
+                            movimientosExtra += 1; // “doble movimiento” = 1 extra
+                            escribirLog("Máquina: PREMIO -> tienes un movimiento extra.");
+                        } else {
+                            perderTurno = true;
+                            escribirLog("Máquina: FALLO -> pierdes el turno.");
+                        }
+
+                        // reset premio para que no se reaplique
+                        maq.setPremio(false);
+
                         btnUsarHabilidad.setEnabled(true);
                         actualizarTablero();
+
+                        // La máquina como acción del turno
+                        terminarAccionYTurno();
+                        deseleccionarPieza();
                     });
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -498,8 +513,10 @@ public class PanelTablero extends JFrame {
                         ImageIcon icon = new ImageIcon(imgURL);
                         Image imgEscalada = icon.getImage().getScaledInstance(85, 85, Image.SCALE_SMOOTH);
                         b.setIcon(new ImageIcon(imgEscalada));
+                        b.setText("");
                     } else {
                         b.setText(p.getNombre().substring(0, 2));
+                        b.setIcon(null);
                     }
                 } else {
                     b.setIcon(null);
@@ -509,7 +526,6 @@ public class PanelTablero extends JFrame {
         }
     }
     
-    // Aplicamos estilo común a los botones
     private void estilarBoton(JButton btn, Font f, Color fg, Color bg) {
         btn.setFont(f);
         btn.setForeground(fg);
@@ -518,11 +534,22 @@ public class PanelTablero extends JFrame {
         btn.setBorderPainted(false);
     }
     
-    // Generamos la ruta y color de la pieza
     private String obtenerRutaImagen(Pieza p) {
         String nombreClase = p.getClass().getSimpleName();
         String color = p.getColor().toString();
         return "/images/" + nombreClase + "_" + color + ".png";
+    }
+
+    private void escribirLog(String msg) {
+        if (logArea == null) return;
+        logArea.append("- " + msg + "\n");
+        logArea.setCaretPosition(logArea.getDocument().getLength());
+    }
+
+    private String coordHumana(int fila, int col) {
+        char letra = (char)('A' + col);
+        int num = fila + 1;
+        return "" + letra + num;
     }
 
     public PanelTablero() {
