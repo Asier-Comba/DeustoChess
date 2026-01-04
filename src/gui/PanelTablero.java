@@ -10,6 +10,8 @@ import java.awt.Image;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -48,6 +50,12 @@ public class PanelTablero extends JFrame {
     
     // Matriz de botones que representa visualmente el tablero
     private JButton[][] botonesCasillas;
+    
+    private JTextArea logArea;
+    private List<String> historialMovimientos = new ArrayList<>();
+    private List<String[]> historialEstados = new ArrayList<>(); // Para guardar estados del tablero
+    private int movimientoActual = 0;
+    private boolean modoReplay = false;
     
     private JLabel lblPiezaSeleccionada;
     private JLabel lblPantallaMaquina; 
@@ -304,16 +312,41 @@ public class PanelTablero extends JFrame {
     
     private void realizarMovimiento(int fO, int cO, int fD, int cD) {
         Pieza piezaCapturada = tableroLogico.getCasillas(fD, cD).getPieza();
+        String nombreCapturada = null;
         
         if (piezaCapturada != null) {
-        	System.out.println("Capturada: " + piezaCapturada.getNombre());
+            nombreCapturada = piezaCapturada.getNombre();
+            System.out.println("Capturada: " + nombreCapturada);
         }
         
+        // Guardar estado antes del movimiento
+        guardarEstadoTablero();
+        
+        // Realizar el movimiento
         tableroLogico.getCasillas(fO, cO).setPieza(null);
         tableroLogico.getCasillas(fD, cD).setPieza(piezaSeleccionada);
         
         piezaSeleccionada.setFila(fD);
         piezaSeleccionada.setColumna(cD);
+        
+        // Registrar movimiento
+        char colO = (char)('A' + cO);
+        char colD = (char)('A' + cD);
+        
+        String movimiento = String.format("%d. %s %s: %c%d → %c%d",  // IA GENERATIVA
+            historialMovimientos.size() + 1, piezaSeleccionada.getNombre(), piezaSeleccionada.getColor(), colO, fO + 1, colD, fD + 1);
+        
+        if (nombreCapturada != null) {
+            movimiento += " ✗" + nombreCapturada;
+        }
+        
+        historialMovimientos.add(movimiento);
+        movimientoActual = historialMovimientos.size();
+        
+        // Actualizar log
+        if (!modoReplay) {
+            actualizarLogNormal();
+        }
     }
     
     // Alternar el turno entre blancas y azules
@@ -391,7 +424,7 @@ public class PanelTablero extends JFrame {
         return p;
     }
 
-    // Panel lateral derecho para guardar los movimientos (POR IMPLEMENTAR FUNCIONALIDAD)
+    // Panel lateral derecho para guardar los movimientos
     private JPanel crearPanelLateral(Color fondo, Color frente) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(fondo);
@@ -400,7 +433,7 @@ public class PanelTablero extends JFrame {
         panel.setPreferredSize(new Dimension(350, 1)); 
 
         // Panel pestañas superior
-        JPanel pestanas = new JPanel(new GridLayout(1, 3));
+        JPanel pestanas = new JPanel(new GridLayout(1, 2));
         Font fuenteBoton = new Font("Arial", Font.BOLD, 12);
         Color oscurecerBK = fondo.darker(); 
         
@@ -408,21 +441,20 @@ public class PanelTablero extends JFrame {
         estilarBoton(btnJugar, fuenteBoton, frente, oscurecerBK);
         pestanas.add(btnJugar);
         
-        JButton btnMovimientos = new JButton("MOVS");
+        JButton btnMovimientos = new JButton("HISTORIAL");
         estilarBoton(btnMovimientos, fuenteBoton, frente, oscurecerBK);
         pestanas.add(btnMovimientos);
         
-        JButton btnInformacion = new JButton("INFO");
-        estilarBoton(btnInformacion, fuenteBoton, frente, oscurecerBK);
-        pestanas.add(btnInformacion);
-        
         panel.add(pestanas, BorderLayout.NORTH);
 
-        JTextArea logArea = new JTextArea("Log de Partida:\n- Inicio de juego.\n- Turno Blancas.");
+        // Área para mostrar movimientos
+        logArea = new JTextArea("=== DEUSTOCHESS ===\n\nPartida Nueva\nTurno: Blancas\n\n");
         logArea.setEditable(false);
         logArea.setBackground(fondo.brighter()); 
         logArea.setForeground(Color.BLACK);
         logArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        logArea.setLineWrap(true);
+        logArea.setWrapStyleWord(true);
         JScrollPane scroll = new JScrollPane(logArea);
         
         panel.add(scroll, BorderLayout.CENTER);
@@ -441,14 +473,54 @@ public class PanelTablero extends JFrame {
         estilarBoton(btnAdelante, new Font("Arial", Font.BOLD, 12), Color.BLACK, controlBg);
         estilarBoton(btnFin, new Font("Arial", Font.BOLD, 12), Color.BLACK, controlBg);
         
+        // === LISTENERS PARA NAVEGACIÓN ===
+        btnInicio.addActionListener(e -> irAlInicio());
+        btnAtras.addActionListener(e -> movimientoAnterior());
+        btnAdelante.addActionListener(e -> movimientoSiguiente());
+        btnFin.addActionListener(e -> irAlFinal());
+        
+        // Cambiar entre modo juego y modo historial
+        btnJugar.addActionListener(e -> {
+            modoReplay = false;
+            irAlFinal(); // Volver al estado actual
+            btnInicio.setEnabled(false);
+            btnAtras.setEnabled(false);
+            btnAdelante.setEnabled(false);
+            btnFin.setEnabled(false);
+            actualizarLogNormal();
+        });
+        
+        btnMovimientos.addActionListener(e -> {
+            if (historialMovimientos.isEmpty()) {
+                JOptionPane.showMessageDialog(this, 
+                    "Aún no hay movimientos registrados.",
+                    "Sin movimientos",
+                    JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            modoReplay = true;
+            btnInicio.setEnabled(true);
+            btnAtras.setEnabled(true);
+            btnAdelante.setEnabled(true);
+            btnFin.setEnabled(true);
+            actualizarLogHistorial();
+        });
+        
         controles.add(btnInicio);
         controles.add(btnAtras);
         controles.add(btnAdelante);
         controles.add(btnFin);
         
+        // Inicialmente deshabilitados
+        btnInicio.setEnabled(false);
+        btnAtras.setEnabled(false);
+        btnAdelante.setEnabled(false);
+        btnFin.setEnabled(false);
+        
         panel.add(controles, BorderLayout.SOUTH);
         return panel;
     }
+
     
     // Ejecutar habilidades especiales según el tipo de pieza
     private void ejecutarHabilidadEspecial() {
@@ -543,5 +615,100 @@ public class PanelTablero extends JFrame {
 
     public void setBd(ConexionBD bd) {
         this.bd = bd;
+    }
+    
+    
+    private void guardarEstadoTablero() {
+        String[] estado = new String[64];
+        int index = 0;
+        
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                Pieza p = tableroLogico.getCasillas(i, j).getPieza();
+                if (p != null) {
+                    estado[index] = p.getNombre() + "|" + p.getColor() + "|" + i + "|" + j;
+                } else {
+                    estado[index] = "VACIO";
+                }
+                index++;
+            }
+        }
+        
+        historialEstados.add(estado);
+    }
+
+    private void actualizarLogNormal() {
+        StringBuilder sb = new StringBuilder(); // IA GENERATIVA
+        
+        sb.append("=== DEUSTOCHESS ===\n\n");
+        sb.append("Turno actual: ").append(turnoActual).append("\n");
+        sb.append("Movimientos: ").append(historialMovimientos.size()).append("\n\n");
+        sb.append("--- ÚLTIMOS MOVIMIENTOS ---\n\n");
+        
+        // Mostrar los últimos 15 movimientos
+        int inicio = Math.max(0, historialMovimientos.size() - 15);
+        for (int i = inicio; i < historialMovimientos.size(); i++) {
+            sb.append(historialMovimientos.get(i)).append("\n");
+        }
+        
+        logArea.setText(sb.toString());
+        logArea.setCaretPosition(logArea.getDocument().getLength());
+    }
+
+    private void actualizarLogHistorial() {
+        if (historialMovimientos.isEmpty()) {
+            logArea.setText("=== HISTORIAL ===\n\nNo hay movimientos registrados.");
+            return;
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== HISTORIAL DE MOVIMIENTOS ===\n\n");
+        sb.append("Movimiento: ").append(movimientoActual).append(" / ").append(historialMovimientos.size()).append("\n\n");
+        
+        for (int i = 0; i < historialMovimientos.size(); i++) {
+            if (i == movimientoActual - 1) {
+                sb.append(">>> ").append(historialMovimientos.get(i)).append(" <<<\n");
+            } else {
+                sb.append(historialMovimientos.get(i)).append("\n");
+            }
+        }
+        
+        logArea.setText(sb.toString());
+        
+        // Scroll al movimiento actual
+        if (movimientoActual > 0) {
+            try {
+                int pos = logArea.getText().indexOf(">>>");
+                if (pos >= 0) {
+                    logArea.setCaretPosition(pos);
+                }
+            } catch (Exception e) {
+                // Ignorar
+            }
+        }
+    }
+
+    private void irAlInicio() {
+        if (!modoReplay || historialMovimientos.isEmpty()) return;
+        movimientoActual = 0;
+        actualizarLogHistorial();
+    }
+
+    private void movimientoAnterior() {
+        if (!modoReplay || movimientoActual <= 0) return;
+        movimientoActual--;
+        actualizarLogHistorial();
+    }
+
+    private void movimientoSiguiente() {
+        if (!modoReplay || movimientoActual >= historialMovimientos.size()) return;
+        movimientoActual++;
+        actualizarLogHistorial();
+    }
+
+    private void irAlFinal() {
+        if (!modoReplay) return;
+        movimientoActual = historialMovimientos.size();
+        actualizarLogHistorial();
     }
 }
