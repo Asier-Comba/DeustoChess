@@ -38,6 +38,7 @@ import domain.Rector;
 import domain.Secretaria;
 import domain.Tablero;
 
+
 public class PanelTablero extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -225,7 +226,6 @@ public class PanelTablero extends JFrame {
 			if (ventanaAnterior != null)
 				ventanaAnterior.dispose();
 
-			abrirVentanaInicioSesionConReflection();
 		});
 
 		addWindowListener(new WindowAdapter() {
@@ -490,13 +490,13 @@ public class PanelTablero extends JFrame {
 		estilarBoton(btnAdelante, new Font("Arial", Font.BOLD, 12), Color.BLACK, controlBg);
 		estilarBoton(btnFin, new Font("Arial", Font.BOLD, 12), Color.BLACK, controlBg);
 
-		// listeners navegación
+		// Botones de navegación
 		btnInicio.addActionListener(e -> irAlInicio());
 		btnAtras.addActionListener(e -> movimientoAnterior());
 		btnAdelante.addActionListener(e -> movimientoSiguiente());
 		btnFin.addActionListener(e -> irAlFinal());
 
-		// modo JUGAR
+		// Modo jugar
 		btnJugar.addActionListener(e -> {
 			modoReplay = false;
 			btnInicio.setEnabled(false);
@@ -506,7 +506,7 @@ public class PanelTablero extends JFrame {
 			actualizarLogNormal();
 		});
 
-		// modo HISTORIAL
+		// Modo historial
 		btnMovimientos.addActionListener(e -> {
 			if (historialMovimientos.isEmpty()) {
 				JOptionPane.showMessageDialog(this, "Aún no hay movimientos registrados.", "Sin movimientos",
@@ -645,9 +645,7 @@ public class PanelTablero extends JFrame {
 		this.bd = bd;
 	}
 
-	// ======================
-	// HISTORIAL
-	// ======================
+	// Historial
 	private void guardarEstadoTablero() {
 		String[] estado = new String[64];
 		int index = 0;
@@ -755,33 +753,4 @@ public class PanelTablero extends JFrame {
 		actualizarLogHistorial();
 	}
 
-	// ======================
-	// Cerrar sesión robusto (sin depender del constructor)
-	// ======================
-	private void abrirVentanaInicioSesionConReflection() {
-		try {
-			Class<?> cls = Class.forName("gui.VentanaInicioSesion");
-
-			// 1) Intentar constructor (ConexionBD)
-			try {
-				Object v = cls.getConstructor(ConexionBD.class).newInstance(bd);
-				if (v instanceof JFrame) {
-					((JFrame) v).setVisible(true);
-				}
-				return;
-			} catch (NoSuchMethodException ex) {
-				// seguir
-			}
-
-			// 2) Intentar constructor vacío
-			Object v2 = cls.getConstructor().newInstance();
-			if (v2 instanceof JFrame) {
-				((JFrame) v2).setVisible(true);
-			}
-
-		} catch (Exception ex) {
-			// Si no existe la ventana o falla, al menos no rompemos el programa
-			System.err.println("No se pudo abrir VentanaInicioSesion: " + ex.getMessage());
-		}
-	}
 }
