@@ -32,6 +32,7 @@ import domain.Alumno;
 import domain.Becario;
 import domain.Bedel;
 import domain.Casilla;
+import domain.Expulsion;
 import domain.MaquinaExpendedora;
 import domain.Pieza;
 import domain.Rector;
@@ -48,7 +49,8 @@ public class PanelTablero extends JFrame {
 	private Tablero tableroLogico;
 	private Casilla casillaSeleccionada;
 	private Pieza piezaSeleccionada;
-
+	private Expulsion expulsion; 
+	private JLabel lblEstadoJaque; 
 	private JButton[][] botonesCasillas;
 
 	private List<String> historialMovimientos = new ArrayList<>();
@@ -80,7 +82,7 @@ public class PanelTablero extends JFrame {
 		this.botonesCasillas = new JButton[8][8];
 		this.piezaSeleccionada = null;
 		this.turnoActual = domain.Color.BLANCA;
-
+		this.expulsion = new Expulsion(tableroLogico);
 		this.movimientosExtra = 0;
 		this.perderTurno = false;
 
@@ -241,82 +243,150 @@ public class PanelTablero extends JFrame {
 		guardarEstadoTablero();
 
 		actualizarLogNormal();
-
+		actualizarEstadoJaque();
 		setLocationRelativeTo(null);
 		setVisible(true);
 	}
 
 	// === CLICK EN CASILLA ===
 	private void clicCasilla(int fila, int col) {
-		if (modoReplay) {
-			JOptionPane.showMessageDialog(this, "Estás en modo HISTORIAL. Vuelve a JUGAR para mover piezas.");
-			return;
-		}
+	    if (modoReplay) {
+	        JOptionPane.showMessageDialog(this, "Estás en modo HISTORIAL. Vuelve a JUGAR para mover piezas.");
+	        return;
+	    }
+	    
+	    // Verificar si la partida terminó
+	    if (expulsion.isPartidaFinalizada()) {
+	        JOptionPane.showMessageDialog(this, "La partida ha finalizado.\n" + expulsion.obtenerMensajeEstado());
+	        return;
+	    }
 
-		Casilla casillaClickeada = tableroLogico.getCasillas(fila, col);
-		Pieza piezaEnCasilla = casillaClickeada.getPieza();
+	    Casilla casillaClickeada = tableroLogico.getCasillas(fila, col);
+	    Pieza piezaEnCasilla = casillaClickeada.getPieza();
 
-		// CASO 1: no hay pieza seleccionada
-		if (piezaSeleccionada == null) {
-			if (piezaEnCasilla != null && piezaEnCasilla.getColor() == turnoActual) {
-				piezaSeleccionada = piezaEnCasilla;
-				setCasillaSeleccionada(casillaClickeada);
+	    // Verificar restricción de reunión urgencia
+	    if (tableroLogico.isReunionUrgencia() && piezaEnCasilla != null) {
+	        if (!(piezaEnCasilla instanceof Alumno) && piezaEnCasilla.getColor() == turnoActual) {
+	            JOptionPane.showMessageDialog(this, 
+	                "¡Reunión de urgencia activa! Solo puedes mover Alumnos este turno.");
+	            return;
+	        }
+	    }
 
-				lblPiezaSeleccionada.setText(piezaEnCasilla.getNombre() + " (" + piezaEnCasilla.getColor() + ")");
+	    // CASO 1: no hay pieza seleccionada
+	    if (piezaSeleccionada == null) {
+	        if (piezaEnCasilla != null && piezaEnCasilla.getColor() == turnoActual) {
+	            piezaSeleccionada = piezaEnCasilla;
+	            setCasillaSeleccionada(casillaClickeada);
 
-				if (piezaEnCasilla instanceof Becario || piezaEnCasilla instanceof MaquinaExpendedora
-						|| piezaEnCasilla instanceof Secretaria || piezaEnCasilla instanceof Alumno
-						|| piezaEnCasilla instanceof Rector || piezaEnCasilla instanceof Bedel) {
-					btnUsarHabilidad.setEnabled(true);
-					btnUsarHabilidad.setText("USAR: " + piezaEnCasilla.getNombre());
-				} else {
-					btnUsarHabilidad.setEnabled(false);
-				}
+	            lblPiezaSeleccionada.setText(piezaEnCasilla.getNombre() + " (" + piezaEnCasilla.getColor() + ")");
 
-				resaltarCasilla(fila, col, true);
-			} else {
-				lblPiezaSeleccionada.setText("Selecciona una pieza de tu color");
-			}
-			return;
-		}
+	            if (piezaEnCasilla instanceof Becario || piezaEnCasilla instanceof MaquinaExpendedora
+	                    || piezaEnCasilla instanceof Secretaria || piezaEnCasilla instanceof Alumno
+	                    || piezaEnCasilla instanceof Rector || piezaEnCasilla instanceof Bedel) {
+	                btnUsarHabilidad.setEnabled(true);
+	                btnUsarHabilidad.setText("USAR: " + piezaEnCasilla.getNombre());
+	            } else {
+	                btnUsarHabilidad.setEnabled(false);
+	            }
 
-		// CASO 2: ya hay pieza seleccionada
-		int filaOrigen = piezaSeleccionada.getFila();
-		int colOrigen = piezaSeleccionada.getColumna();
+	            resaltarCasilla(fila, col, true);
+	        } else {
+	            lblPiezaSeleccionada.setText("Selecciona una pieza de tu color");
+	        }
+	        return;
+	    }
 
-		// deselección
-		if (fila == filaOrigen && col == colOrigen) {
-			deseleccionarPieza();
-			return;
-		}
+	    // CASO 2: ya hay pieza seleccionada
+	    int filaOrigen = piezaSeleccionada.getFila();
+	    int colOrigen = piezaSeleccionada.getColumna();
 
-		// si clicas una pieza aliada, cambias selección
-		if (piezaEnCasilla != null && piezaEnCasilla.getColor() == turnoActual) {
-			resaltarCasilla(filaOrigen, colOrigen, false);
-			piezaSeleccionada = piezaEnCasilla;
-			setCasillaSeleccionada(casillaClickeada);
-			lblPiezaSeleccionada.setText(piezaEnCasilla.getNombre() + " (" + piezaEnCasilla.getColor() + ")");
-			resaltarCasilla(fila, col, true);
-			return;
-		}
+	    // deselección
+	    if (fila == filaOrigen && col == colOrigen) {
+	        deseleccionarPieza();
+	        return;
+	    }
 
-		// movimiento normal
-		if (piezaSeleccionada.movimientoValido(fila, col, tableroLogico)) {
-			realizarMovimiento(filaOrigen, colOrigen, fila, col);
+	    // si clicas una pieza aliada, cambias selección
+	    if (piezaEnCasilla != null && piezaEnCasilla.getColor() == turnoActual) {
+	        resaltarCasilla(filaOrigen, colOrigen, false);
+	        piezaSeleccionada = piezaEnCasilla;
+	        setCasillaSeleccionada(casillaClickeada);
+	        lblPiezaSeleccionada.setText(piezaEnCasilla.getNombre() + " (" + piezaEnCasilla.getColor() + ")");
+	        resaltarCasilla(fila, col, true);
+	        return;
+	    }
 
-			// Promoción de Alumno
-			if (piezaSeleccionada instanceof Alumno) {
-				int filaFinal = (piezaSeleccionada.getColor() == domain.Color.BLANCA) ? 7 : 0;
-				if (fila == filaFinal)
-					piezaSeleccionada.usarHabilidad(tableroLogico);
-			}
+	    // Verificar movimiento legal (no deja al rector en jaque)
+	    if (!expulsion.esMovimientoLegal(piezaSeleccionada, fila, col)) {
+	        lblPiezaSeleccionada.setText("❌ Movimiento ilegal (deja al Rector en Expediente)");
+	        JOptionPane.showMessageDialog(this, "No puedes hacer ese movimiento.\nDejarías a tu Rector en Expediente (Jaque).");
+	        return;
+	    }
 
-			terminarAccionYTurno();
-			deseleccionarPieza();
-			actualizarTablero();
-		} else {
-			lblPiezaSeleccionada.setText("Movimiento inválido");
-		}
+	    // movimiento normal
+	    if (piezaSeleccionada.movimientoValido(fila, col, tableroLogico)) {
+	        realizarMovimiento(filaOrigen, colOrigen, fila, col);
+
+	        // Promoción de Alumno
+	        if (piezaSeleccionada instanceof Alumno) {
+	            int filaFinal = (piezaSeleccionada.getColor() == domain.Color.BLANCA) ? 7 : 0;
+	            if (fila == filaFinal)
+	                piezaSeleccionada.usarHabilidad(tableroLogico);
+	        }
+
+	        terminarAccionYTurno();
+	        deseleccionarPieza();
+	        actualizarTablero();
+	        actualizarEstadoJaque(); // Actualizar estado de jaque/jaque mate
+	    } else {
+	        lblPiezaSeleccionada.setText("Movimiento inválido");
+	    	}
+	    }
+	
+	private void actualizarEstadoJaque() {
+	    String mensaje = expulsion.obtenerMensajeEstado();
+	    
+	    // Actualizar el label si existe
+	    if (lblEstadoJaque != null) {
+	        lblEstadoJaque.setText(mensaje);
+	        
+	        // Cambiar color según el estado
+	        if (mensaje.contains("Expediente")) {
+	            lblEstadoJaque.setForeground(Color.RED);
+	        } else if (mensaje.contains("Expulsión") || mensaje.contains("Victoria")) {
+	            lblEstadoJaque.setForeground(Color.ORANGE);
+	        } else if (mensaje.contains("Empate")) {
+	            lblEstadoJaque.setForeground(Color.YELLOW);
+	        } else {
+	            lblEstadoJaque.setForeground(Color.WHITE);
+	        }
+	    }
+	    
+	    // Si hay jaque, mostrar mensaje
+	    if (expulsion.estaEnJaque(turnoActual) && !expulsion.isPartidaFinalizada()) {
+	        JOptionPane.showMessageDialog(this, 
+	            "📄 ¡EXPEDIENTE!\n\nEl Rector " + turnoActual + " está bajo amenaza.\nDebes protegerlo en tu próximo movimiento.",
+	            "¡Expediente al Rector!",
+	            JOptionPane.WARNING_MESSAGE);
+	    }
+	    
+	    // Si hay jaque mate, mostrar mensaje y finalizar
+	    if (expulsion.isPartidaFinalizada()) {
+	        if (expulsion.getGanador() != null) {
+	            JOptionPane.showMessageDialog(this, 
+	                "🧹 ¡EXPULSIÓN DEL RECTOR!\n\n" +
+	                "Rector expulsado: " + turnoActual + "\n" +
+	                "Ganador: " + expulsion.getGanador(),
+	                "¡Fin de la partida!",
+	                JOptionPane.INFORMATION_MESSAGE);
+	        } else {
+	            JOptionPane.showMessageDialog(this, 
+	                "📘 EMPATE\n\nLa partida termina en tablas por ahogado.",
+	                "Empate",
+	                JOptionPane.INFORMATION_MESSAGE);
+	        }
+	    }
 	}
 
 	private void realizarMovimiento(int fO, int cO, int fD, int cD) {
@@ -372,8 +442,16 @@ public class PanelTablero extends JFrame {
 	}
 
 	private void cambiarTurno() {
-		turnoActual = (turnoActual == domain.Color.BLANCA) ? domain.Color.NEGRA : domain.Color.BLANCA;
-		actualizarLogNormal();
+	    // Desactivar efecto de reunión urgencia si estaba activo
+	    if (tableroLogico.isReunionUrgencia()) {
+	        tableroLogico.setReunionUrgencia(false);
+	        JOptionPane.showMessageDialog(this, "La reunión de urgencia ha finalizado.");
+	    }
+	    
+	    turnoActual = (turnoActual == domain.Color.BLANCA) ? domain.Color.NEGRA : domain.Color.BLANCA;
+	    expulsion.cambiarTurno(); // Actualizar turno en el sistema de expulsión
+	    actualizarLogNormal();
+	    actualizarEstadoJaque(); // Verificar jaque/jaque mate después del cambio
 	}
 
 	private void deseleccionarPieza() {
@@ -408,6 +486,13 @@ public class PanelTablero extends JFrame {
 		lblTitulo.setForeground(texto);
 		lblTitulo.setAlignmentX(JLabel.CENTER_ALIGNMENT);
 
+		lblEstadoJaque = new JLabel("Turno: Blancas");
+		lblEstadoJaque.setFont(new Font("Arial", Font.BOLD, 16));
+		lblEstadoJaque.setForeground(Color.WHITE);
+		lblEstadoJaque.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+		lblEstadoJaque.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
+
+		
 		lblPiezaSeleccionada = new JLabel("Seleccione pieza...");
 		lblPiezaSeleccionada.setFont(new Font("Arial", Font.PLAIN, 14));
 		lblPiezaSeleccionada.setForeground(Color.WHITE);
@@ -431,6 +516,8 @@ public class PanelTablero extends JFrame {
 		p.add(lblTitulo);
 		p.add(new JSeparator());
 		p.add(Box.createVerticalStrut(20));
+		p.add(lblEstadoJaque); 
+	    p.add(Box.createVerticalStrut(10));
 		p.add(lblPiezaSeleccionada);
 		p.add(Box.createVerticalStrut(20));
 		p.add(btnUsarHabilidad);
@@ -666,28 +753,44 @@ public class PanelTablero extends JFrame {
 	}
 
 	private void actualizarLogNormal() {
-		if (logArea == null)
-			return;
+	    if (logArea == null)
+	        return;
 
-		StringBuilder sb = new StringBuilder();
+	    StringBuilder sb = new StringBuilder();
 
-		sb.append("=== DEUSTOCHESS ===\n\n");
-		sb.append("Turno actual: ").append(turnoActual).append("\n");
-		sb.append("Movimientos: ").append(historialMovimientos.size()).append("\n");
-		if (movimientosExtra > 0)
-			sb.append("Efecto: MOVIMIENTO EXTRA\n");
-		if (perderTurno)
-			sb.append("Efecto: PIERDE TURNO\n");
-		sb.append("\n--- ÚLTIMOS MOVIMIENTOS ---\n\n");
+	    sb.append("=== DEUSTOCHESS ===\n\n");
+	    
+	    // Mostrar estado de jaque/mate
+	    if (expulsion.isPartidaFinalizada()) {
+	        sb.append("🏁 PARTIDA FINALIZADA\n");
+	        if (expulsion.getGanador() != null) {
+	            sb.append("🧹 Victoria: ").append(expulsion.getGanador()).append("\n");
+	        } else {
+	            sb.append("📘 EMPATE\n");
+	        }
+	    } else if (expulsion.estaEnJaque(turnoActual)) {
+	        sb.append("⚠️ ¡EXPEDIENTE AL RECTOR ").append(turnoActual).append("!\n");
+	    }
+	    
+	    sb.append("Turno actual: ").append(turnoActual).append("\n");
+	    sb.append("Movimientos: ").append(historialMovimientos.size()).append("\n");
+	    
+	    if (movimientosExtra > 0)
+	        sb.append("Efecto: MOVIMIENTO EXTRA\n");
+	    if (perderTurno)
+	        sb.append("Efecto: PIERDE TURNO\n");
+	        
+	    sb.append("\n--- ÚLTIMOS MOVIMIENTOS ---\n\n");
 
-		int inicio = Math.max(0, historialMovimientos.size() - 15);
-		for (int i = inicio; i < historialMovimientos.size(); i++) {
-			sb.append(historialMovimientos.get(i)).append("\n");
-		}
+	    int inicio = Math.max(0, historialMovimientos.size() - 15);
+	    for (int i = inicio; i < historialMovimientos.size(); i++) {
+	        sb.append(historialMovimientos.get(i)).append("\n");
+	    }
 
-		logArea.setText(sb.toString());
-		logArea.setCaretPosition(logArea.getDocument().getLength());
+	    logArea.setText(sb.toString());
+	    logArea.setCaretPosition(logArea.getDocument().getLength());
 	}
+
 
 	private void actualizarLogHistorial() {
 		if (logArea == null)
