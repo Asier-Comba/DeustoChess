@@ -28,6 +28,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import bd.ConexionBD;
+import bd.Historial;
 import domain.Alumno;
 import domain.Becario;
 import domain.Bedel;
@@ -38,7 +39,6 @@ import domain.Pieza;
 import domain.Rector;
 import domain.Secretaria;
 import domain.Tablero;
-
 
 public class PanelTablero extends JFrame {
 
@@ -70,10 +70,17 @@ public class PanelTablero extends JFrame {
 	private JTextArea logArea;
 
 	private ConexionBD bd;
+	
+	// === JUGADORES DE LA PARTIDA ===
+	private Historial jugadorBlanco;
+	private Historial jugadorNegro;
 
-	public PanelTablero(JFrame va, ConexionBD bd) {
+	// === CONSTRUCTOR MODIFICADO: RECIBE JUGADORES ===
+	public PanelTablero(JFrame va, ConexionBD bd, Historial jBlanco, Historial jNegro) {
 		this.ventanaAnterior = va;
 		this.setBd(bd);
+		this.jugadorBlanco = jBlanco;
+		this.jugadorNegro = jNegro;
 
 		this.tableroLogico = new Tablero();
 		this.botonesCasillas = new JButton[8][8];
@@ -84,7 +91,9 @@ public class PanelTablero extends JFrame {
 		this.perderTurno = false;
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("DeustoChess - Partida 1 vs 1");
+		
+		// Título personalizado con nombres de los jugadores
+		setTitle("DeustoChess - " + jugadorBlanco.getJugadorNom() + " (Blancas) VS " + jugadorNegro.getJugadorNom() + " (Negras)");
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 
 		PanelConFondo main = new PanelConFondo("/images/FondoJuego.png");
@@ -224,7 +233,8 @@ public class PanelTablero extends JFrame {
 			dispose();
 			if (ventanaAnterior != null)
 				ventanaAnterior.dispose();
-
+			
+			new VentanaInicioSesion(bd);
 		});
 
 		addWindowListener(new WindowAdapter() {
@@ -267,7 +277,7 @@ public class PanelTablero extends JFrame {
 	        }
 	    }
 
-	    // CASO 1: no hay pieza seleccionada
+
 	    if (piezaSeleccionada == null) {
 	        if (piezaEnCasilla != null && piezaEnCasilla.getColor() == turnoActual) {
 	            piezaSeleccionada = piezaEnCasilla;
@@ -291,7 +301,7 @@ public class PanelTablero extends JFrame {
 	        return;
 	    }
 
-	    // CASO 2: ya hay pieza seleccionada
+
 	    int filaOrigen = piezaSeleccionada.getFila();
 	    int colOrigen = piezaSeleccionada.getColumna();
 
@@ -318,7 +328,6 @@ public class PanelTablero extends JFrame {
 	        return;
 	    }
 	    
-	    // Segundo: verificar si el movimiento deja al propio Rector en jaque
 	    if (!expulsion.esMovimientoLegal(piezaSeleccionada, fila, col)) {
 	        lblPiezaSeleccionada.setText("❌ Movimiento ilegal (deja al Rector en Expediente)");
 	        JOptionPane.showMessageDialog(this, 
@@ -328,7 +337,6 @@ public class PanelTablero extends JFrame {
 	        return;
 	    }
 
-	    // Movimiento válido y legal
 	    realizarMovimiento(filaOrigen, colOrigen, fila, col);
 
 	    if (piezaSeleccionada instanceof Alumno) {
@@ -420,26 +428,56 @@ public class PanelTablero extends JFrame {
 	    actualizarEstadoJaque();
 	    
 	    if (expulsion.estaEnJaque(turnoActual) && !expulsion.isPartidaFinalizada()) {
-	        JOptionPane.showMessageDialog(this, 
-	            "📄 ¡EXPEDIENTE!\n\nEl Rector " + turnoActual + " está bajo amenaza.\nDebes protegerlo en tu próximo movimiento.",
+	        JOptionPane.showMessageDialog(this,
+	            "¡EXPEDIENTE!\nEl Rector " + turnoActual + " está bajo amenaza.\nDebes protegerlo en tu próximo movimiento.",
 	            "¡Expediente al Rector!",
 	            JOptionPane.WARNING_MESSAGE);
 	    }
 	    
 	    if (expulsion.isPartidaFinalizada()) {
-	        if (expulsion.getGanador() != null) {
-	            JOptionPane.showMessageDialog(this, 
-	                "🧹 ¡EXPULSIÓN DEL RECTOR!\n\n" +
-	                "Rector expulsado: " + turnoActual + "\n" +
-	                "Ganador: " + expulsion.getGanador(),
-	                "¡Fin de la partida!",
-	                JOptionPane.INFORMATION_MESSAGE);
+	        domain.Color colorGanador = expulsion.getGanador();
+	        
+	        if (colorGanador != null) {
+	        	
+	        	if (colorGanador == domain.Color.BLANCA) {
+	        		
+	        		bd.sumarVictoria(jugadorBlanco.getIdJ());
+	        		bd.sumarDerrota(jugadorNegro.getIdJ());
+	        		
+	        		JOptionPane.showMessageDialog(this, 
+		                "¡EXPULSIÓN DEL RECTOR!\n\n" +
+		                "GANADOR: " + jugadorBlanco.getJugadorNom() + " (Blancas)\n" +
+		                "PERDEDOR: " + jugadorNegro.getJugadorNom() + " (Negras)\n\n" +
+		                "Las estadísticas han sido actualizadas en la base de datos.",
+		                "¡Fin de la partida!",
+		                JOptionPane.INFORMATION_MESSAGE);
+	        		
+	        	} else {
+	        		bd.sumarVictoria(jugadorNegro.getIdJ());
+	        		bd.sumarDerrota(jugadorBlanco.getIdJ());
+	        		
+	        		JOptionPane.showMessageDialog(this, 
+		                "¡EXPULSIÓN DEL RECTOR!\n\n" +
+		                "GANADOR: " + jugadorNegro.getJugadorNom() + " (Negras)\n" +
+		                "PERDEDOR: " + jugadorBlanco.getJugadorNom() + " (Blancas)\n\n" +
+		                "Las estadísticas han sido actualizadas en la base de datos.",
+		                "¡Fin de la partida!",
+		                JOptionPane.INFORMATION_MESSAGE);
+	        	}
 	        } else {
 	            JOptionPane.showMessageDialog(this, 
-	                "📘 EMPATE\n\nLa partida termina en tablas por ahogado.",
+	                "EMPATE\n\nLa partida termina en tablas por ahogado.\nNo se actualizan estadísticas.",
 	                "Empate",
 	                JOptionPane.INFORMATION_MESSAGE);
 	        }
+	        return; 
+	    }
+	    
+	    if (expulsion.estaEnJaque(turnoActual)) {
+	        JOptionPane.showMessageDialog(this, 
+	            "¡EXPEDIENTE!\n\nEl Rector " + turnoActual + " está bajo amenaza.\nDebes protegerlo en tu próximo movimiento.",
+	            "¡Expediente al Rector!",
+	            JOptionPane.WARNING_MESSAGE);
 	    }
 	}
 
@@ -694,10 +732,6 @@ public class PanelTablero extends JFrame {
 		return "/images/" + nombreClase + "_" + color + ".png";
 	}
 
-	public PanelTablero() {
-		this(null, null);
-	}
-
 	public Casilla getCasillaSeleccionada() {
 		return casillaSeleccionada;
 	}
@@ -740,18 +774,19 @@ public class PanelTablero extends JFrame {
 
 	    StringBuilder sb = new StringBuilder();
 
-	    sb.append("=== DEUSTOCHESS ===\n\n");
+	    sb.append("=== DEUSTOCHESS ===\n");
+	    sb.append("Blancas: ").append(jugadorBlanco.getJugadorNom()).append("\n");
+	    sb.append("Negras: ").append(jugadorNegro.getJugadorNom()).append("\n\n");
 	    
-	    // Mostrar estado de jaque/mate
 	    if (expulsion.isPartidaFinalizada()) {
-	        sb.append("🏁 PARTIDA FINALIZADA\n");
+	        sb.append("PARTIDA FINALIZADA\n");
 	        if (expulsion.getGanador() != null) {
-	            sb.append("🧹 Victoria: ").append(expulsion.getGanador()).append("\n");
+	            sb.append("Victoria: ").append(expulsion.getGanador()).append("\n");
 	        } else {
-	            sb.append("📘 EMPATE\n");
+	            sb.append("EMPATE\n");
 	        }
 	    } else if (expulsion.estaEnJaque(turnoActual)) {
-	        sb.append("⚠️ ¡EXPEDIENTE AL RECTOR ").append(turnoActual).append("!\n");
+	        sb.append("¡EXPEDIENTE AL RECTOR ").append(turnoActual).append("!\n");
 	    }
 	    
 	    sb.append("Turno actual: ").append(turnoActual).append("\n");
