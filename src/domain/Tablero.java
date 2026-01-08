@@ -48,10 +48,10 @@ public class Tablero {
 		casillas[0][2].setPieza(new Secretaria("Secretaria", Color.BLANCA, 0, 2, false));
 		casillas[0][5].setPieza(new Secretaria("Secretaria", Color.BLANCA, 0, 5, false));
 		
-		// Reina (Bedel) - Nota: En ajedrez real, reina blanca va en casilla blanca (d1 -> 0,3)
+		// Reina (Bedel) en columna 3
 		casillas[0][3].setPieza(new Bedel("Bedel", Color.BLANCA, 0, 3, false));
 		
-		// Rey (Rector)
+		// Rey (Rector) en columna 4
 		casillas[0][4].setPieza(new Rector("Rector", Color.BLANCA, 0, 4, false, false, false));
 		
 		// Peones (Alumnos)
@@ -69,8 +69,11 @@ public class Tablero {
 		casillas[7][2].setPieza(new Secretaria("Secretaria", Color.NEGRA, 7, 2, false));
 		casillas[7][5].setPieza(new Secretaria("Secretaria", Color.NEGRA, 7, 5, false));
 		
-		casillas[7][3].setPieza(new Rector("Rector", Color.NEGRA, 7, 3, false, false, false));
-		casillas[7][4].setPieza(new Bedel("Bedel", Color.NEGRA, 7, 4, false));
+		// Reina (Bedel) en columna 3 - enfrentado al Bedel blanco
+		casillas[7][3].setPieza(new Bedel("Bedel", Color.NEGRA, 7, 3, false));
+		
+		// Rey (Rector) en columna 4 - enfrentado al Rector blanco
+		casillas[7][4].setPieza(new Rector("Rector", Color.NEGRA, 7, 4, false, false, false));
 
 		for (int j = 0; j < 8; j++) {
 			casillas[6][j].setPieza(new Alumno("Alumno", Color.NEGRA, 6, j, false));

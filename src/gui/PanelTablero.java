@@ -54,7 +54,7 @@ public class PanelTablero extends JFrame {
 	private JButton[][] botonesCasillas;
 
 	private List<String> historialMovimientos = new ArrayList<>();
-	private List<String[]> historialEstados = new ArrayList<>(); // estados del tablero (guardados)
+	private List<String[]> historialEstados = new ArrayList<>();
 	private int movimientoActual = 0;
 	private boolean modoReplay = false;
 
@@ -62,14 +62,11 @@ public class PanelTablero extends JFrame {
 	private JLabel lblPantallaMaquina;
 	private JButton btnUsarHabilidad;
 
-	// Control de turnos
 	private domain.Color turnoActual;
 
-	// Efectos de turno (Máquina)
 	private int movimientosExtra;
 	private boolean perderTurno;
 
-	// Área lateral (historial/log)
 	private JTextArea logArea;
 
 	private ConexionBD bd;
@@ -239,7 +236,6 @@ public class PanelTablero extends JFrame {
 			}
 		});
 
-		// Estado inicial para historial (opcional pero útil)
 		guardarEstadoTablero();
 
 		actualizarLogNormal();
@@ -255,7 +251,6 @@ public class PanelTablero extends JFrame {
 	        return;
 	    }
 	    
-	    // Verificar si la partida terminó
 	    if (expulsion.isPartidaFinalizada()) {
 	        JOptionPane.showMessageDialog(this, "La partida ha finalizado.\n" + expulsion.obtenerMensajeEstado());
 	        return;
@@ -264,7 +259,6 @@ public class PanelTablero extends JFrame {
 	    Casilla casillaClickeada = tableroLogico.getCasillas(fila, col);
 	    Pieza piezaEnCasilla = casillaClickeada.getPieza();
 
-	    // Verificar restricción de reunión urgencia
 	    if (tableroLogico.isReunionUrgencia() && piezaEnCasilla != null) {
 	        if (!(piezaEnCasilla instanceof Alumno) && piezaEnCasilla.getColor() == turnoActual) {
 	            JOptionPane.showMessageDialog(this, 
@@ -301,13 +295,11 @@ public class PanelTablero extends JFrame {
 	    int filaOrigen = piezaSeleccionada.getFila();
 	    int colOrigen = piezaSeleccionada.getColumna();
 
-	    // deselección
 	    if (fila == filaOrigen && col == colOrigen) {
 	        deseleccionarPieza();
 	        return;
 	    }
 
-	    // si clicas una pieza aliada, cambias selección
 	    if (piezaEnCasilla != null && piezaEnCasilla.getColor() == turnoActual) {
 	        resaltarCasilla(filaOrigen, colOrigen, false);
 	        piezaSeleccionada = piezaEnCasilla;
@@ -317,41 +309,48 @@ public class PanelTablero extends JFrame {
 	        return;
 	    }
 
-	    // Verificar movimiento legal (no deja al rector en jaque)
+	    // === PROBLEMA 3 SOLUCIONADO: Verificar primero si es válido, luego si es legal ===
+	    // Primero: verificar si el movimiento es válido según las reglas de la pieza
+	    if (!piezaSeleccionada.movimientoValido(fila, col, tableroLogico)) {
+	        lblPiezaSeleccionada.setText("❌ Movimiento inválido");
+	        JOptionPane.showMessageDialog(this, 
+	            "Movimiento inválido.\n\nEsta pieza no puede moverse a esa casilla según sus reglas de movimiento.",
+	            "Movimiento inválido",
+	            JOptionPane.WARNING_MESSAGE);
+	        return;
+	    }
+	    
+	    // Segundo: verificar si el movimiento deja al propio Rector en jaque
 	    if (!expulsion.esMovimientoLegal(piezaSeleccionada, fila, col)) {
 	        lblPiezaSeleccionada.setText("❌ Movimiento ilegal (deja al Rector en Expediente)");
-	        JOptionPane.showMessageDialog(this, "No puedes hacer ese movimiento.\nDejarías a tu Rector en Expediente (Jaque).");
+	        JOptionPane.showMessageDialog(this, 
+	            "No puedes hacer ese movimiento.\n\nDejarías a tu Rector en Expediente (Jaque).",
+	            "Rector en peligro",
+	            JOptionPane.WARNING_MESSAGE);
 	        return;
 	    }
 
-	    // movimiento normal
-	    if (piezaSeleccionada.movimientoValido(fila, col, tableroLogico)) {
-	        realizarMovimiento(filaOrigen, colOrigen, fila, col);
+	    // Movimiento válido y legal
+	    realizarMovimiento(filaOrigen, colOrigen, fila, col);
 
-	        // Promoción de Alumno
-	        if (piezaSeleccionada instanceof Alumno) {
-	            int filaFinal = (piezaSeleccionada.getColor() == domain.Color.BLANCA) ? 7 : 0;
-	            if (fila == filaFinal)
-	                piezaSeleccionada.usarHabilidad(tableroLogico);
-	        }
-
-	        terminarAccionYTurno();
-	        deseleccionarPieza();
-	        actualizarTablero();
-	        actualizarEstadoJaque(); // Actualizar estado de jaque/jaque mate
-	    } else {
-	        lblPiezaSeleccionada.setText("Movimiento inválido");
-	    	}
+	    if (piezaSeleccionada instanceof Alumno) {
+	        int filaFinal = (piezaSeleccionada.getColor() == domain.Color.BLANCA) ? 7 : 0;
+	        if (fila == filaFinal)
+	            piezaSeleccionada.usarHabilidad(tableroLogico);
 	    }
+
+	    terminarAccionYTurno();
+	    deseleccionarPieza();
+	    actualizarTablero();
+	}
 	
+	// === PROBLEMA 2 SOLUCIONADO: Solo actualiza el label, no muestra diálogos ===
 	private void actualizarEstadoJaque() {
 	    String mensaje = expulsion.obtenerMensajeEstado();
 	    
-	    // Actualizar el label si existe
 	    if (lblEstadoJaque != null) {
 	        lblEstadoJaque.setText(mensaje);
 	        
-	        // Cambiar color según el estado
 	        if (mensaje.contains("Expediente")) {
 	            lblEstadoJaque.setForeground(Color.RED);
 	        } else if (mensaje.contains("Expulsión") || mensaje.contains("Victoria")) {
@@ -360,31 +359,6 @@ public class PanelTablero extends JFrame {
 	            lblEstadoJaque.setForeground(Color.YELLOW);
 	        } else {
 	            lblEstadoJaque.setForeground(Color.WHITE);
-	        }
-	    }
-	    
-	    // Si hay jaque, mostrar mensaje
-	    if (expulsion.estaEnJaque(turnoActual) && !expulsion.isPartidaFinalizada()) {
-	        JOptionPane.showMessageDialog(this, 
-	            "📄 ¡EXPEDIENTE!\n\nEl Rector " + turnoActual + " está bajo amenaza.\nDebes protegerlo en tu próximo movimiento.",
-	            "¡Expediente al Rector!",
-	            JOptionPane.WARNING_MESSAGE);
-	    }
-	    
-	    // Si hay jaque mate, mostrar mensaje y finalizar
-	    if (expulsion.isPartidaFinalizada()) {
-	        if (expulsion.getGanador() != null) {
-	            JOptionPane.showMessageDialog(this, 
-	                "🧹 ¡EXPULSIÓN DEL RECTOR!\n\n" +
-	                "Rector expulsado: " + turnoActual + "\n" +
-	                "Ganador: " + expulsion.getGanador(),
-	                "¡Fin de la partida!",
-	                JOptionPane.INFORMATION_MESSAGE);
-	        } else {
-	            JOptionPane.showMessageDialog(this, 
-	                "📘 EMPATE\n\nLa partida termina en tablas por ahogado.",
-	                "Empate",
-	                JOptionPane.INFORMATION_MESSAGE);
 	        }
 	    }
 	}
@@ -397,17 +371,14 @@ public class PanelTablero extends JFrame {
 			nombreCapturada = piezaCapturada.getNombre();
 		}
 
-		// Guardar estado antes del movimiento
 		guardarEstadoTablero();
 
-		// Realizar el movimiento
 		tableroLogico.getCasillas(fO, cO).setPieza(null);
 		tableroLogico.getCasillas(fD, cD).setPieza(piezaSeleccionada);
 
 		piezaSeleccionada.setFila(fD);
 		piezaSeleccionada.setColumna(cD);
 
-		// Registrar movimiento
 		char colO = (char) ('A' + cO);
 		char colD = (char) ('A' + cD);
 
@@ -424,7 +395,6 @@ public class PanelTablero extends JFrame {
 		actualizarLogNormal();
 	}
 
-	// Turnos con efecto Máquina
 	private void terminarAccionYTurno() {
 		if (perderTurno) {
 			perderTurno = false;
@@ -441,17 +411,41 @@ public class PanelTablero extends JFrame {
 		cambiarTurno();
 	}
 
+	// === PROBLEMA 2 SOLUCIONADO: Los diálogos se muestran aquí UNA SOLA VEZ ===
 	private void cambiarTurno() {
-	    // Desactivar efecto de reunión urgencia si estaba activo
 	    if (tableroLogico.isReunionUrgencia()) {
 	        tableroLogico.setReunionUrgencia(false);
 	        JOptionPane.showMessageDialog(this, "La reunión de urgencia ha finalizado.");
 	    }
 	    
 	    turnoActual = (turnoActual == domain.Color.BLANCA) ? domain.Color.NEGRA : domain.Color.BLANCA;
-	    expulsion.cambiarTurno(); // Actualizar turno en el sistema de expulsión
+	    expulsion.cambiarTurno();
 	    actualizarLogNormal();
-	    actualizarEstadoJaque(); // Verificar jaque/jaque mate después del cambio
+	    actualizarEstadoJaque();
+	    
+	    // Mostrar diálogos solo al cambiar turno (una sola vez)
+	    if (expulsion.estaEnJaque(turnoActual) && !expulsion.isPartidaFinalizada()) {
+	        JOptionPane.showMessageDialog(this, 
+	            "📄 ¡EXPEDIENTE!\n\nEl Rector " + turnoActual + " está bajo amenaza.\nDebes protegerlo en tu próximo movimiento.",
+	            "¡Expediente al Rector!",
+	            JOptionPane.WARNING_MESSAGE);
+	    }
+	    
+	    if (expulsion.isPartidaFinalizada()) {
+	        if (expulsion.getGanador() != null) {
+	            JOptionPane.showMessageDialog(this, 
+	                "🧹 ¡EXPULSIÓN DEL RECTOR!\n\n" +
+	                "Rector expulsado: " + turnoActual + "\n" +
+	                "Ganador: " + expulsion.getGanador(),
+	                "¡Fin de la partida!",
+	                JOptionPane.INFORMATION_MESSAGE);
+	        } else {
+	            JOptionPane.showMessageDialog(this, 
+	                "📘 EMPATE\n\nLa partida termina en tablas por ahogado.",
+	                "Empate",
+	                JOptionPane.INFORMATION_MESSAGE);
+	        }
+	    }
 	}
 
 	private void deseleccionarPieza() {
@@ -528,7 +522,6 @@ public class PanelTablero extends JFrame {
 		return p;
 	}
 
-	// Panel lateral derecho para historial/movimientos
 	private JPanel crearPanelLateral(Color fondo, Color frente) {
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.setBackground(fondo);
@@ -536,7 +529,6 @@ public class PanelTablero extends JFrame {
 		panel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		panel.setPreferredSize(new Dimension(350, 1));
 
-		// Pestañas superior
 		JPanel pestanas = new JPanel(new GridLayout(1, 2));
 		Font fuenteBoton = new Font("Arial", Font.BOLD, 12);
 		Color oscurecerBK = fondo.darker();
@@ -551,7 +543,6 @@ public class PanelTablero extends JFrame {
 
 		panel.add(pestanas, BorderLayout.NORTH);
 
-		// Área movimientos
 		logArea = new JTextArea("=== DEUSTOCHESS ===\n\nPartida Nueva\nTurno: Blancas\n\n");
 		logArea.setEditable(false);
 		logArea.setBackground(fondo.brighter());
@@ -577,13 +568,11 @@ public class PanelTablero extends JFrame {
 		estilarBoton(btnAdelante, new Font("Arial", Font.BOLD, 12), Color.BLACK, controlBg);
 		estilarBoton(btnFin, new Font("Arial", Font.BOLD, 12), Color.BLACK, controlBg);
 
-		// Botones de navegación
 		btnInicio.addActionListener(e -> irAlInicio());
 		btnAtras.addActionListener(e -> movimientoAnterior());
 		btnAdelante.addActionListener(e -> movimientoSiguiente());
 		btnFin.addActionListener(e -> irAlFinal());
 
-		// Modo jugar
 		btnJugar.addActionListener(e -> {
 			modoReplay = false;
 			btnInicio.setEnabled(false);
@@ -593,7 +582,6 @@ public class PanelTablero extends JFrame {
 			actualizarLogNormal();
 		});
 
-		// Modo historial
 		btnMovimientos.addActionListener(e -> {
 			if (historialMovimientos.isEmpty()) {
 				JOptionPane.showMessageDialog(this, "Aún no hay movimientos registrados.", "Sin movimientos",
@@ -613,7 +601,6 @@ public class PanelTablero extends JFrame {
 		controles.add(btnAdelante);
 		controles.add(btnFin);
 
-		// inicialmente deshabilitados
 		btnInicio.setEnabled(false);
 		btnAtras.setEnabled(false);
 		btnAdelante.setEnabled(false);

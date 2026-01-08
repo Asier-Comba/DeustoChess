@@ -26,38 +26,69 @@ public class Bedel extends Pieza {
 
 	@Override
 	public boolean movimientoValido(int nuevaFila, int nuevaColumna, Tablero tablero) {
-	
-		return false;
+		if (nuevaFila < 0 || nuevaFila > 7 || nuevaColumna < 0 || nuevaColumna > 7) {
+			return false;
+		}
+		
+		if (nuevaFila == this.fila && nuevaColumna == this.columna) {
+			return false;
+		}
+		
+		int difFila = Math.abs(nuevaFila - this.fila);
+		int difColumna = Math.abs(nuevaColumna - this.columna);
+		
+		// Movimiento en línea recta
+		boolean movimientoRecto = (nuevaFila == this.fila || nuevaColumna == this.columna);
+		
+		// Movimiento en diagonal
+		boolean movimientoDiagonal = (difFila == difColumna && difFila > 0);
+		
+		// El movimiento debe ser recto o diagonal
+		if (!movimientoRecto && !movimientoDiagonal) {
+			return false;
+		}
+		
+		int direccionFila = Integer.signum(nuevaFila - this.fila);
+		int direccionColumna = Integer.signum(nuevaColumna - this.columna);
+		
+		int filaActual = this.fila + direccionFila;
+		int columnaActual = this.columna + direccionColumna;
+		
+		while (filaActual != nuevaFila || columnaActual != nuevaColumna) {
+			// Si hay una pieza en el camino, el movimiento no es válido
+			if (tablero.getCasillas(filaActual, columnaActual).getPieza() != null) {
+				return false;
+			}
+			
+			// Avanzar a la siguiente casilla
+			filaActual += direccionFila;
+			columnaActual += direccionColumna;
+		}
+		
+
+		Pieza piezaDestino = tablero.getCasillas(nuevaFila, nuevaColumna).getPieza();
+		
+		return (piezaDestino == null || piezaDestino.getColor() != this.color);
 	}
 
 	@Override
 	public void usarHabilidad(Tablero tablero) {
 		//comprobar si ya se ha usado
 		if (haUsadoHabilidad) {
-			JOptionPane.showMessageDialog(
-					null,
-					"Este Bedel ya ha hecho una limpieza general.",
-					"Habilidad ya usada",
-					JOptionPane.INFORMATION_MESSAGE
-			);
+			JOptionPane.showMessageDialog(null, "Este Bedel ya ha hecho una limpieza general.", "Habilidad ya usada", JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
 
-		//calcular todas las piezas enemigas visibles en línea recta o diagonal
+		//calcular todas las piezas enemigas visibles
 		List<Casilla> objetivos = obtenerObjetivosVisibles(tablero);
 
 		if (objetivos.isEmpty()) {
-			JOptionPane.showMessageDialog(
-					null,
-					"No hay ninguna pieza enemiga visible en línea recta o diagonal.\n" +
-					"El Bedel no tiene nada que limpiar por ahora.",
-					"Sin objetivos",
-					JOptionPane.INFORMATION_MESSAGE
-			);
+			JOptionPane.showMessageDialog(null, "No hay ninguna pieza enemiga visible en línea recta o diagonal.\n" + 
+			"El Bedel no tiene nada que limpiar por ahora.", "Sin objetivos", JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
 
-		//construir lista de opciones legibles para el jugador
+		//construir lista de opciones para el jugador
 		String[] opciones = new String[objetivos.size()];
 		for (int i = 0; i < objetivos.size(); i++) {
 			Casilla c = objetivos.get(i);
@@ -71,17 +102,9 @@ public class Bedel extends Pieza {
 		}
 
 		//preguntar al usuario que pieza quiere eliminar
-		Object seleccion = JOptionPane.showInputDialog(
-				null,
-				"Selecciona la pieza enemiga que el Bedel va a eliminar:",
-				"Limpieza general del Bedel",
-				JOptionPane.QUESTION_MESSAGE,
-				null,
-				opciones,
-				opciones[0]
-		);
+		Object seleccion = JOptionPane.showInputDialog(null, "Selecciona la pieza enemiga que el Bedel va a eliminar:", 
+				"Limpieza general del Bedel", JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
 
-		//si el usuario cancela,no se gasta la habilidad
 		if (seleccion == null) {
 			return;
 		}
@@ -96,20 +119,16 @@ public class Bedel extends Pieza {
 		}
 
 		if (indice == -1) {
-			//algo raro ha pasado, no hacemos nada
 			return;
 		}
 
 		Casilla casillaObjetivo = objetivos.get(indice);
 		Pieza piezaEliminada = casillaObjetivo.getPieza();
 
-		//eliminar la pieza enemiga
 		casillaObjetivo.setPieza(null);
 
-		//marcar la habilidad como usada
 		haUsadoHabilidad = true;
 
-		//damos el mensaje de lo que ha pasado
 		char letraColumna = (char) ('A' + casillaObjetivo.getColumna());
 		int numeroFila = casillaObjetivo.getFila() + 1;
 
@@ -127,16 +146,15 @@ public class Bedel extends Pieza {
 	private List<Casilla> obtenerObjetivosVisibles(Tablero tablero) {
 		List<Casilla> lista = new ArrayList<>();
 		
-		//direcciones: arriba, abajo, izquierda, derecha, y 4 diagonales
 		int[][] direcciones = {
-				{-1,  0}, // arriba
-				{ 1,  0}, // abajo
-				{ 0, -1}, // izquierda
-				{ 0,  1}, // derecha
-				{-1, -1}, // diagonal arriba-izquierda
-				{-1,  1}, // diagonal arriba-derecha
-				{ 1, -1}, // diagonal abajo-izquierda
-				{ 1,  1}  // diagonal abajo-derecha
+				{-1,  0}, 
+				{ 1,  0}, 
+				{ 0, -1}, 
+				{ 0,  1}, 
+				{-1, -1}, 
+				{-1,  1},
+				{ 1, -1},
+				{ 1,  1}
 		};
 		
 		for (int[] dir : direcciones) {
@@ -163,4 +181,4 @@ public class Bedel extends Pieza {
 		
 		return lista;
 	}
-}
+}				

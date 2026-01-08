@@ -18,9 +18,7 @@ public class Expulsion {
         this.ganador = null;
     }
     
-    // ========== MÉTODOS DE JAQUE ==========
     
-  
     public boolean estaEnJaque(Color color) {
         Rector rector = buscarRector(color);
         
@@ -35,7 +33,6 @@ public class Expulsion {
         return casillaAmenazadaPor(filaRector, columnaRector, colorContrario(color));
     }
     
-  
     public boolean casillaAmenazadaPor(int fila, int columna, Color colorAtacante) {
         // Recorrer todo el tablero buscando piezas del color atacante
         for (int i = 0; i < 8; i++) {
@@ -45,7 +42,10 @@ public class Expulsion {
                 if (pieza != null && pieza.getColor() == colorAtacante) {
                     // Verificar si puede moverse a la casilla objetivo
                     if (pieza.movimientoValido(fila, columna, tablero)) {
-                        return true;
+                        // Verificación adicional: el movimiento debe ser realmente ejecutable
+                        if (esMovimientoRealmenteValido(pieza, fila, columna)) {
+                            return true;
+                        }
                     }
                 }
             }
@@ -55,6 +55,46 @@ public class Expulsion {
     }
     
  
+    private boolean esMovimientoRealmenteValido(Pieza pieza, int destinoFila, int destinoCol) {
+        // Para el Becario (que salta), el movimiento es válido si movimientoValido() dice que sí
+        if (pieza instanceof Becario) {
+            return true;
+        }
+        
+        // Para otras piezas, verificar que el camino esté libre
+        int origenFila = pieza.getFila();
+        int origenCol = pieza.getColumna();
+        
+        // Calcular dirección
+        int dirFila = Integer.signum(destinoFila - origenFila);
+        int dirCol = Integer.signum(destinoCol - origenCol);
+        
+        // Si es un Alumno, validación especial para capturas
+        if (pieza instanceof Alumno) {
+            // Los alumnos solo pueden "amenazar" en diagonal
+            int deltaFila = destinoFila - origenFila;
+            int deltaCol = Math.abs(destinoCol - origenCol);
+            int direccion = (pieza.getColor() == Color.BLANCA) ? 1 : -1;
+            
+            // Solo puede amenazar si es un movimiento diagonal de captura
+            return (deltaCol == 1 && deltaFila == direccion);
+        }
+        
+        // Verificar camino libre para piezas que no saltan
+        int filaActual = origenFila + dirFila;
+        int colActual = origenCol + dirCol;
+        
+        while (filaActual != destinoFila || colActual != destinoCol) {
+            if (tablero.getCasillas(filaActual, colActual).getPieza() != null) {
+                return false; // Hay una pieza bloqueando
+            }
+            filaActual += dirFila;
+            colActual += dirCol;
+        }
+        
+        return true;
+    }
+    
     public List<Pieza> obtenerPiezasAtacantes(Color color) {
         List<Pieza> atacantes = new ArrayList<>();
         Rector rector = buscarRector(color);
@@ -74,7 +114,9 @@ public class Expulsion {
                 
                 if (pieza != null && pieza.getColor() == colorEnemigo) {
                     if (pieza.movimientoValido(filaRector, columnaRector, tablero)) {
-                        atacantes.add(pieza);
+                        if (esMovimientoRealmenteValido(pieza, filaRector, columnaRector)) {
+                            atacantes.add(pieza);
+                        }
                     }
                 }
             }
@@ -83,9 +125,7 @@ public class Expulsion {
         return atacantes;
     }
     
-    // ========== MÉTODOS DE JAQUE MATE ==========
     
-   
     public boolean estaEnJaqueMate(Color color) {
         // Si no está en jaque, no puede estar en jaque mate
         if (!estaEnJaque(color)) {
@@ -96,7 +136,6 @@ public class Expulsion {
         return !tieneMovimientosLegales(color);
     }
     
-   
     public boolean tieneMovimientosLegales(Color color) {
         // Recorrer todas las piezas del color especificado
         for (int i = 0; i < 8; i++) {
@@ -123,7 +162,6 @@ public class Expulsion {
         return false; // No hay movimientos legales
     }
     
-    
     private boolean esMovimientoLegalSimulado(Pieza pieza, int destinoFila, int destinoCol) {
         // Guardar estado original
         int origenFila = pieza.getFila();
@@ -149,7 +187,6 @@ public class Expulsion {
         return !dejaEnJaque;
     }
     
-    
     public boolean esMovimientoLegal(Pieza pieza, int destinoFila, int destinoCol) {
         // Primero verificar si el movimiento es válido según la pieza
         if (!pieza.movimientoValido(destinoFila, destinoCol, tablero)) {
@@ -160,15 +197,12 @@ public class Expulsion {
         return esMovimientoLegalSimulado(pieza, destinoFila, destinoCol);
     }
     
-    // ========== MÉTODOS DE AHOGADO ==========
     
     public boolean hayAhogado(Color color) {
         return !estaEnJaque(color) && !tieneMovimientosLegales(color);
     }
     
-    // ========== MÉTODOS AUXILIARES ==========
     
-   
     private Rector buscarRector(Color color) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -181,19 +215,15 @@ public class Expulsion {
         return null;
     }
     
-  
     private Color colorContrario(Color color) {
         return (color == Color.BLANCA) ? Color.NEGRA : Color.BLANCA;
     }
     
-    // ========== GESTIÓN DE TURNOS ==========
     
-   
     public void cambiarTurno() {
         turnoActual = colorContrario(turnoActual);
         verificarEstadoPartida();
     }
-    
     
     private void verificarEstadoPartida() {
         if (estaEnJaqueMate(turnoActual)) {
@@ -212,29 +242,26 @@ public class Expulsion {
         }
     }
     
-   
     public String obtenerMensajeEstado() {
         if (partidaFinalizada) {
             if (ganador != null) {
-                return "Expulsión del Rector - Victoria: " + ganador;
+                return "🧹 Expulsión del Rector - Victoria: " + ganador;
             } else {
-                return "Empate";
+                return "📘 Empate por ahogado";
             }
         } else if (estaEnJaque(turnoActual)) {
-            return "Expediente: " + turnoActual;
+            return "📄 ¡Expediente! - Turno: " + turnoActual;
         } else {
             return "Turno: " + turnoActual;
         }
     }
     
-  
     public void reiniciar() {
         this.turnoActual = Color.BLANCA;
         this.partidaFinalizada = false;
         this.ganador = null;
     }
     
-    // ========== GETTERS Y SETTERS ==========
     
     public Color getTurnoActual() {
         return turnoActual;
@@ -255,4 +282,4 @@ public class Expulsion {
     public Tablero getTablero() {
         return tablero;
     }
-}
+}	
