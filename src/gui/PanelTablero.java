@@ -244,7 +244,7 @@ public class PanelTablero extends JFrame {
 		setVisible(true);
 	}
 
-	// === CLICK EN CASILLA ===
+	// CLICK EN CASILLA
 	private void clicCasilla(int fila, int col) {
 	    if (modoReplay) {
 	        JOptionPane.showMessageDialog(this, "Estás en modo HISTORIAL. Vuelve a JUGAR para mover piezas.");
@@ -309,8 +309,6 @@ public class PanelTablero extends JFrame {
 	        return;
 	    }
 
-	    // === PROBLEMA 3 SOLUCIONADO: Verificar primero si es válido, luego si es legal ===
-	    // Primero: verificar si el movimiento es válido según las reglas de la pieza
 	    if (!piezaSeleccionada.movimientoValido(fila, col, tableroLogico)) {
 	        lblPiezaSeleccionada.setText("❌ Movimiento inválido");
 	        JOptionPane.showMessageDialog(this, 
@@ -344,7 +342,6 @@ public class PanelTablero extends JFrame {
 	    actualizarTablero();
 	}
 	
-	// === PROBLEMA 2 SOLUCIONADO: Solo actualiza el label, no muestra diálogos ===
 	private void actualizarEstadoJaque() {
 	    String mensaje = expulsion.obtenerMensajeEstado();
 	    
@@ -411,7 +408,6 @@ public class PanelTablero extends JFrame {
 		cambiarTurno();
 	}
 
-	// === PROBLEMA 2 SOLUCIONADO: Los diálogos se muestran aquí UNA SOLA VEZ ===
 	private void cambiarTurno() {
 	    if (tableroLogico.isReunionUrgencia()) {
 	        tableroLogico.setReunionUrgencia(false);
@@ -423,7 +419,6 @@ public class PanelTablero extends JFrame {
 	    actualizarLogNormal();
 	    actualizarEstadoJaque();
 	    
-	    // Mostrar diálogos solo al cambiar turno (una sola vez)
 	    if (expulsion.estaEnJaque(turnoActual) && !expulsion.isPartidaFinalizada()) {
 	        JOptionPane.showMessageDialog(this, 
 	            "📄 ¡EXPEDIENTE!\n\nEl Rector " + turnoActual + " está bajo amenaza.\nDebes protegerlo en tu próximo movimiento.",
