@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import bd.ConexionBD;
+import bd.Historial;
 
 public class VentanaInicioSesion extends JFrame {
 
@@ -15,6 +16,9 @@ public class VentanaInicioSesion extends JFrame {
 	private JFrame ventanaActual;
 	private ConexionBD bd;
 	
+
+	private Historial jugador1 = null; 
+	
 	public VentanaInicioSesion(ConexionBD bd) {
 		this.setBd(bd);
 		ventanaActual = this;
@@ -22,35 +26,29 @@ public class VentanaInicioSesion extends JFrame {
 		setSize(500,700);
 		setTitle("Inicio de sesión - DeustoChess");
 		setResizable(false);
-		// === METEMOS EL LOGO NUEVAMENTE ===
+		
 		ImageIcon im = new ImageIcon("img/LogoDeustoChess.png");
 		setIconImage(im.getImage());
-		// === ESTABLECER EL PANEL DE FONDO ===
+		
 		PanelConFondo fondo = new PanelConFondo("/images/InicioSesion.png");
 		setContentPane(fondo);
-		
-		// === USAR NULL LAYOUT PARA POSICIONAMIENTO ABSOLUTO ===
 		fondo.setLayout(null);
 
-		// === CREACIÓN DE COMPONENTES ===
-		btnIniciarSesion = new JButton("");
+
+		btnIniciarSesion = new JButton(""); 
 		btnCrearCuenta = new JButton("Crear Cuenta");
 		txtUsuario = new JTextField(20);
 		txtContrasenia = new JPasswordField(20);
 
-		// === CONFIGURACIÓN DEL PLACEHOLDER PARA USUARIO ===
+		// === CONFIGURACIÓN USUARIO ===
 		String placeholderUsuario = "Usuario";
 		txtUsuario.setText(placeholderUsuario);
 		txtUsuario.setForeground(Color.GRAY);
-		// === CENTRAMOS EL TEXTO ===
 		txtUsuario.setHorizontalAlignment(JTextField.CENTER); 
 		txtUsuario.setFont(new Font("Arial", Font.BOLD, 18));
-		// === FONDO TRANSPARENTE ===
 		txtUsuario.setOpaque(false);
-		// === SIN BORDES ===
 		txtUsuario.setBorder(null);
 		
-		// === FUNCIÓN BLOQUES USUARIO Y CONTRASEÑA ===
 		txtUsuario.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -68,16 +66,14 @@ public class VentanaInicioSesion extends JFrame {
 			}
 		});
 
-		// === CONFIGURACIÓN DEL PLACEHOLDER PARA LA CONTRASEÑA ===
+
 		String placeholderContra = "Contraseña";
-		// === GUARDAR EL CARÁCTER '•' (IA GENERATIVA) ===
 		char defaultEchoChar = txtContrasenia.getEchoChar(); 
 		txtContrasenia.setText(placeholderContra);
 		txtContrasenia.setForeground(Color.GRAY);
 		txtContrasenia.setEchoChar((char) 0);
 		txtContrasenia.setHorizontalAlignment(JPasswordField.CENTER); 
 		txtContrasenia.setFont(new Font("Arial", Font.BOLD, 18));
-		// === FONDO TRANSPARENTE PARA USAR LA IMAGEN ===
 		txtContrasenia.setOpaque(false); 
 		txtContrasenia.setBorder(null);
 		
@@ -88,7 +84,6 @@ public class VentanaInicioSesion extends JFrame {
 				if (pass.equals(placeholderContra)) {
 					txtContrasenia.setText("");
 					txtContrasenia.setForeground(Color.BLACK);
-					// === OCULTAR TEXTO AL ESCRIBIR (IA GENERATIVA) ===
 					txtContrasenia.setEchoChar(defaultEchoChar); 
 				}
 			}
@@ -98,7 +93,6 @@ public class VentanaInicioSesion extends JFrame {
 				if (pass.isEmpty()) {
 					txtContrasenia.setForeground(Color.GRAY);
 					txtContrasenia.setText(placeholderContra);
-					// === MOSTRAR PLACEHOLDER (IA GENERATIVA) ===
 					txtContrasenia.setEchoChar((char) 0);
 				}
 			}
@@ -109,7 +103,7 @@ public class VentanaInicioSesion extends JFrame {
 		btnIniciarSesion.setBorderPainted(false);
 		btnIniciarSesion.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		
-		// === POSICIONAR COMPONENTES CON SETBOUNDS ===
+
 		txtUsuario.setBounds(80, 332, 340, 45);
 		txtContrasenia.setBounds(80, 387, 340, 45);
 		btnIniciarSesion.setBounds(165, 450, 160, 43);
@@ -117,83 +111,107 @@ public class VentanaInicioSesion extends JFrame {
 		btnCrearCuenta.setForeground(Color.white);
 		btnCrearCuenta.setBackground(new Color(58, 117, 173));
 		
-
-		// === AÑADIR COMPONENTES AL PANEL FONDO ===
 		fondo.add(txtUsuario);
 		fondo.add(txtContrasenia);
 		fondo.add(btnIniciarSesion);
 		fondo.add(btnCrearCuenta);
 
-		// === AÑADIR LISTENERS ===
 
-		// === ACCIÓN: INICIAR SESIÓN ===
 		btnIniciarSesion.addActionListener(new ActionListener() {
 		    @Override
 		    public void actionPerformed(ActionEvent e) {
 		        
-		        // === OBTENER VALORES DE LOS CAMPOS DE TEXTO ===
 		        String usuario = txtUsuario.getText();
 		        String contrasenia = new String(txtContrasenia.getPassword());
 		        
-		        // === LIMPIAR PLACEHOLDERS SI NO SE MODIFICARON ===
-		       
 		        if (usuario.equals(placeholderUsuario)) usuario = "";
 		        if (contrasenia.equals(placeholderContra)) contrasenia = "";
 		        
-		        // === VERIFICAR CREDENCIALES EN LA BASE DE DATOS ===
+
 		        if (bd.verificarCredenciales(usuario, contrasenia)) {
-		            JOptionPane.showMessageDialog(null, "Inicio de sesión correcto para: " + usuario);
-		            ventanaActual.setVisible(false);
-		            new VentanaPrincipal(ventanaActual, bd);
+		            
+
+		        	Historial jugadorLogueado = bd.obtenerDatosJugador(usuario);
+		        	
+		        	if (jugador1 == null) {
+		        		// --- PASO 1: JUGADOR BLANCAS ---
+		        		jugador1 = jugadorLogueado;
+		        		
+		        		JOptionPane.showMessageDialog(null, 
+		        				"✅ ¡Bienvenido " + jugador1.getJugadorNom() + "!\n" +
+		        				"Jugarás con BLANCAS.\n\n" +
+		        				"Ahora debe iniciar sesión el JUGADOR 2 (NEGRAS).");
+		        		
+
+		        		txtUsuario.setText("");
+		        		txtContrasenia.setText("");
+		        		txtUsuario.requestFocus();
+		        		setTitle("Inicio de sesión - JUGADOR 2 (NEGRAS)");
+		        		
+		        	} else {
+
+		        		if (jugador1.getIdJ().equals(jugadorLogueado.getIdJ())) {
+		        			JOptionPane.showMessageDialog(null, "❌ Error: El Jugador 2 debe ser una persona distinta.");
+		        			return;
+		        		}
+		        		
+		        		Historial jugador2 = jugadorLogueado;
+		        		
+		        		JOptionPane.showMessageDialog(null, 
+		        				"¡Bienvenido " + jugador2.getJugadorNom() + "!\n" +
+		        				"Jugarás con NEGRAS.\n\n" +
+		        				"¡QUE COMIENCE LA PARTIDA!");
+		        		
+		        		ventanaActual.setVisible(false);
+		        		
+
+		        		new VentanaPrincipal(ventanaActual, bd, jugador1, jugador2);
+		        	}
 		            
 		        } else {
-		            
-		            // === VERIFICAR CREDENCIALES DE PRUEBA ===
+
 		            if (usuario.equals("deusto") && contrasenia.equals("deusto")) {
-		                JOptionPane.showMessageDialog(null, "Inicio de sesión de prueba correcto.");
+		                JOptionPane.showMessageDialog(null, "Inicio de sesión de PRUEBA (Admin).");
 		                ventanaActual.setVisible(false);
-		                new VentanaPrincipal(ventanaActual, bd);
-		                
+
+		                Historial dummy1 = new Historial("AdminBlancas", "Test", "00", 0, 0);
+		                Historial dummy2 = new Historial("AdminNegras", "Test", "01", 0, 0);
+		                new VentanaPrincipal(ventanaActual, bd, dummy1, dummy2);
 		            } else {
-		                
-		                // === CREDENCIALES INCORRECTAS ===
 		                JOptionPane.showMessageDialog(null, "Usuario y/o contraseña incorrectos");
 		            }
 		        }
 		        
-		        
-		        // === RESTAURAR CAMPO USUARIO ===
-		        txtUsuario.setForeground(Color.GRAY);
-		        txtUsuario.setText(placeholderUsuario);
-		        
-		        // === RESTAURAR CAMPO CONTRASEÑA ===
-		        txtContrasenia.setForeground(Color.GRAY);
-		        txtContrasenia.setText(placeholderContra);
-		        
-		        // === DESACTIVAR OCULTACIÓN PARA MOSTRAR PLACEHOLDER ===
-		        txtContrasenia.setEchoChar((char) 0);
+
+		        if (ventanaActual.isVisible()) {
+		        	if (txtUsuario.getText().isEmpty()) {
+				        txtUsuario.setForeground(Color.GRAY);
+				        txtUsuario.setText(placeholderUsuario);
+		        	}
+		        	if (String.valueOf(txtContrasenia.getPassword()).isEmpty()) {
+				        txtContrasenia.setForeground(Color.GRAY);
+				        txtContrasenia.setText(placeholderContra);
+				        txtContrasenia.setEchoChar((char) 0);
+		        	}
+		        }
 		    }
 		});
 		
-		// === ACCIÓN: CREAR CUENTA ===
 		btnCrearCuenta.addActionListener(e -> {
 			ventanaActual.setVisible(false);
-			 new VentanaCrearCuenta(ventanaActual, bd); 
+			new VentanaCrearCuenta(ventanaActual, bd); 
 		});
 
 		addWindowListener(new java.awt.event.WindowAdapter() {
 		    @Override
 		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-		      
 		        bd.closeBD();
-		        
-		       
 		        System.exit(0);
 		    }
 		});
+		
 		this.getRootPane().setDefaultButton(btnIniciarSesion);
 		this.setLocationRelativeTo(null);
-		
 		setVisible(true);
 	}
 
