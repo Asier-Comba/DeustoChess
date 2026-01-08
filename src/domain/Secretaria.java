@@ -10,6 +10,7 @@ public class Secretaria extends Pieza {
 
     public Secretaria(String nombre, Color color, int fila, int columna, boolean haUsadoHabilidad) {
         super(nombre, color, fila, columna);
+        this.haUsadoHabilidad = haUsadoHabilidad;
     }
     
     public boolean isHaUsadoHabilidad() {
@@ -22,10 +23,34 @@ public class Secretaria extends Pieza {
     
     @Override
     public boolean movimientoValido(int nuevaFila, int nuevaColumna, Tablero tablero) {
-        int difFila = Math.abs(nuevaFila - this.fila);
-        int difCol = Math.abs(nuevaColumna - this.columna);
-        
-        return (difFila == difCol) && (difFila > 0);
+        // Dentro del tablero
+        if (nuevaFila < 0 || nuevaFila > 7 || nuevaColumna < 0 || nuevaColumna > 7) return false;
+
+        // No quedarse en la misma casilla
+        if (nuevaFila == this.fila && nuevaColumna == this.columna) return false;
+
+        int difFila = nuevaFila - this.fila;
+        int difCol = nuevaColumna - this.columna;
+
+        // Movimiento de alfil: diagonal pura
+        if (Math.abs(difFila) != Math.abs(difCol)) return false;
+
+        // Comprobar que el camino está libre (sin saltar piezas)
+        int pasoFila = Integer.signum(difFila);
+        int pasoCol = Integer.signum(difCol);
+
+        int f = this.fila + pasoFila;
+        int c = this.columna + pasoCol;
+
+        while (f != nuevaFila) { // en diagonal, con esto vale
+            if (tablero.getCasillas(f, c).getPieza() != null) return false;
+            f += pasoFila;
+            c += pasoCol;
+        }
+
+        // Destino: vacío o enemigo (nunca aliado)
+        Pieza destino = tablero.getCasillas(nuevaFila, nuevaColumna).getPieza();
+        return (destino == null || destino.getColor() != this.color);
     }
 
     @Override
@@ -141,7 +166,7 @@ public class Secretaria extends Pieza {
     private boolean validarFormatoCoordenada(String coord) {
         if (coord == null || coord.length() != 2) {
             return false;
-		}
+        }
         
         char letra = coord.charAt(0);
         char numero = coord.charAt(1);

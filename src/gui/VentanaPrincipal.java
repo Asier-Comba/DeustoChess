@@ -10,7 +10,7 @@ public class VentanaPrincipal extends JFrame {
     private static JFrame ventanaActual;
 
     private JPanel pSur, pEste, pOeste;
-    private JButton btnCerrarSesion, btnSalir, btn1VS1, btnReglas, btnHistorial;
+    private JButton btnCerrarSesion, btnSalir, btn1VS1, btnReglas, btnHistorial, btnEmparejamientos;
     private JFrame ventanaAnterior;
     private ConexionBD bd;
 
@@ -76,6 +76,14 @@ public class VentanaPrincipal extends JFrame {
         btnHistorial.setBackground(new Color(0, 123, 255));
         btnHistorial.setOpaque(true);
         btnHistorial.setBorderPainted(false);
+
+        // === NUEVO BOTÓN: EMPAREJAMIENTOS ===
+        btnEmparejamientos = new JButton("GENERAR EMPAREJAMIENTOS");
+        btnEmparejamientos.setFont(new Font("Arial", Font.BOLD, 24));
+        btnEmparejamientos.setForeground(new Color(230, 235, 255));
+        btnEmparejamientos.setBackground(new Color(0, 123, 255));
+        btnEmparejamientos.setOpaque(true);
+        btnEmparejamientos.setBorderPainted(false);
         
         // === LAYOUTS ===
         pSur.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 10)); // botones centrados y separados
@@ -96,8 +104,7 @@ public class VentanaPrincipal extends JFrame {
         btn1VS1.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnReglas.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        
-        // Espaciado vertical entre botones (según práctica 3A.III)
+        // Espaciado vertical entre botones
         pSur.add(Box.createVerticalGlue());
         pSur.add(btn1VS1);
         pSur.add(Box.createRigidArea(new Dimension(0, 25)));
@@ -105,60 +112,57 @@ public class VentanaPrincipal extends JFrame {
         pSur.add(Box.createRigidArea(new Dimension(0, 25)));
         pSur.add(btnHistorial);
         pSur.add(Box.createRigidArea(new Dimension(0, 25)));
+        pSur.add(btnEmparejamientos);
+        pSur.add(Box.createRigidArea(new Dimension(0, 25)));
         pSur.add(btnCerrarSesion);
         pSur.add(Box.createRigidArea(new Dimension(0, 25)));
         pSur.add(btnSalir);
         pSur.add(Box.createRigidArea(new Dimension(0, 25)));
         pSur.add(Box.createVerticalGlue());
 
-
-        
         // === ESPACIO ENTRE LOS BOTONES Y LA VENTANA ===
         pSur.setBorder(BorderFactory.createEmptyBorder(0, 0, 50, 0));
         
-
-     // === ACCIONES === 
+        // === ACCIONES === 
         btnSalir.addActionListener((e) -> {
         	System.exit(0);
         	bd.closeBD();
-        	}); 
+        }); 
         
         btnCerrarSesion.addActionListener(e -> { 
-        
-        	ventanaActual.setVisible(false); ventanaAnterior.setVisible(true);
-        	});
+        	ventanaActual.setVisible(false);
+        	ventanaAnterior.setVisible(true);
+        });
         
         btnReglas.addActionListener(e -> {
-          
             VentanaReglas ventanaReglas = new VentanaReglas();
-            
             ventanaReglas.setVisible(true);
- 
         });
     
         btnHistorial.addActionListener(e -> {
             ventanaActual.setVisible(false);
-           
             new TablaHistorial(ventanaActual, bd).setVisible(true); 
         });
         
         btn1VS1.addActionListener(e -> {
             ventanaActual.setVisible(false);
-          
             new PanelTablero(ventanaActual, bd).setVisible(true); 
+        });
+
+        // === NUEVA ACCIÓN ===
+        btnEmparejamientos.addActionListener(e -> {
+            ventanaActual.setVisible(false);
+            new VentanaEmparejamientos(ventanaActual).setVisible(true);
         });
         
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                // Ejecutar la lógica de cierre de la base de datos
                 bd.closeBD();
-                
-                // Finalizar la aplicación
                 System.exit(0);
             }
         });
-        // === HACER VISIBLE ===
+
         setVisible(true);
     }
 
@@ -169,7 +173,4 @@ public class VentanaPrincipal extends JFrame {
 	public void setBd(ConexionBD bd) {
 		this.bd = bd;
 	}
-   
 }
-
-
