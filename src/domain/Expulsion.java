@@ -59,41 +59,51 @@ public class Expulsion {
     	return false;
     }
 
- 
+
     private boolean esMovimientoRealmenteValido(Pieza pieza, int destinoFila, int destinoCol) {
-    if (pieza instanceof Becario) {
-        return true;
+    	if (pieza instanceof Becario) {
+    		return true;
+    	}
+
+    	if (pieza instanceof Alumno) {
+    		int origenFila = pieza.getFila();
+    		int origenCol = pieza.getColumna();
+    		int deltaFila = destinoFila - origenFila;
+    		int deltaCol = Math.abs(destinoCol - origenCol);
+    		int direccion = (pieza.getColor() == Color.BLANCA) ? 1 : -1;
+
+    		return (deltaCol == 1 && deltaFila == direccion);
+    	}
+
+    	int origenFila = pieza.getFila();
+    	int origenCol = pieza.getColumna();
+
+    	int dirFila = Integer.compare(destinoFila, origenFila);
+    	int dirCol = Integer.compare(destinoCol, origenCol);
+
+    	int filaActual = origenFila + dirFila;
+    	int colActual = origenCol + dirCol;
+
+    	while (filaActual != destinoFila || colActual != destinoCol) {
+    		return esCaminoLibreRecursivo(origenFila + dirFila, origenCol + dirCol, destinoFila, destinoCol, dirFila, dirCol);
+    	}
+
+    	return true;
     }
-    
-    if (pieza instanceof Alumno) {
-        int origenFila = pieza.getFila();
-        int origenCol = pieza.getColumna();
-        int deltaFila = destinoFila - origenFila;
-        int deltaCol = Math.abs(destinoCol - origenCol);
-        int direccion = (pieza.getColor() == Color.BLANCA) ? 1 : -1;
-        
-        return (deltaCol == 1 && deltaFila == direccion);
-    }
-    
-    int origenFila = pieza.getFila();
-    int origenCol = pieza.getColumna();
-    
-    int dirFila = Integer.compare(destinoFila, origenFila); // Usar Integer.compare o signum
-    int dirCol = Integer.compare(destinoCol, origenCol);
-    
-    int filaActual = origenFila + dirFila;
-    int colActual = origenCol + dirCol;
-    
-    while (filaActual != destinoFila || colActual != destinoCol) {
-        if (tablero.getCasillas(filaActual, colActual).getPieza() != null) {
+
+ 
+    private boolean esCaminoLibreRecursivo(int f, int c, int fDest, int cDest, int dF, int dC) {
+        // Caso Base: camino despejado
+        if (f == fDest && c == cDest) {
+            return true;
+        }
+        // Caso Base: camino bloqueado
+        if (tablero.getCasillas(f, c).getPieza() != null) {
             return false;
         }
-        filaActual += dirFila;
-        colActual += dirCol;
+        // Paso Recursivo: avanzamos
+        return esCaminoLibreRecursivo(f + dF, c + dC, fDest, cDest, dF, dC);
     }
-    
-    return true;
-}
     
     public List<Pieza> obtenerPiezasAtacantes(Color color) {
         List<Pieza> atacantes = new ArrayList<>();
