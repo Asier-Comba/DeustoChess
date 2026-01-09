@@ -71,11 +71,11 @@ public class PanelTablero extends JFrame {
 
 	private ConexionBD bd;
 	
-	// === JUGADORES DE LA PARTIDA ===
+	// Jugadores partida blanco y negro
 	private Historial jugadorBlanco;
 	private Historial jugadorNegro;
 
-	// === CONSTRUCTOR MODIFICADO: RECIBE JUGADORES ===
+	// Constructor
 	public PanelTablero(JFrame va, ConexionBD bd, Historial jBlanco, Historial jNegro) {
 		this.ventanaAnterior = va;
 		this.setBd(bd);
@@ -92,7 +92,6 @@ public class PanelTablero extends JFrame {
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		// Título personalizado con nombres de los jugadores
 		setTitle("DeustoChess - " + jugadorBlanco.getJugadorNom() + " (Blancas) VS " + jugadorNegro.getJugadorNom() + " (Negras)");
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 
@@ -279,26 +278,37 @@ public class PanelTablero extends JFrame {
 
 
 	    if (piezaSeleccionada == null) {
-	        if (piezaEnCasilla != null && piezaEnCasilla.getColor() == turnoActual) {
-	            piezaSeleccionada = piezaEnCasilla;
-	            setCasillaSeleccionada(casillaClickeada);
+	    	if (piezaEnCasilla != null && piezaEnCasilla.getColor() == turnoActual) {
+	    		piezaSeleccionada = piezaEnCasilla;
+	    		setCasillaSeleccionada(casillaClickeada);
 
-	            lblPiezaSeleccionada.setText(piezaEnCasilla.getNombre() + " (" + piezaEnCasilla.getColor() + ")");
+	    		lblPiezaSeleccionada.setText(piezaEnCasilla.getNombre() + " (" + piezaEnCasilla.getColor() + ")");
 
-	            if (piezaEnCasilla instanceof Becario || piezaEnCasilla instanceof MaquinaExpendedora
-	                    || piezaEnCasilla instanceof Secretaria || piezaEnCasilla instanceof Alumno
-	                    || piezaEnCasilla instanceof Rector || piezaEnCasilla instanceof Bedel) {
-	                btnUsarHabilidad.setEnabled(true);
-	                btnUsarHabilidad.setText("USAR: " + piezaEnCasilla.getNombre());
-	            } else {
-	                btnUsarHabilidad.setEnabled(false);
-	            }
+	    		boolean hayJaque = expulsion.estaEnJaque(turnoActual);
+	    		
+	    		//SOLO ACTIVAMOS HABS ESPECIALES SI HAY JAQUE
+	    		if (!hayJaque && (piezaEnCasilla instanceof Becario || piezaEnCasilla instanceof MaquinaExpendedora
+	    				|| piezaEnCasilla instanceof Secretaria || piezaEnCasilla instanceof Alumno
+	    				|| piezaEnCasilla instanceof Rector || piezaEnCasilla instanceof Bedel)) {
 
-	            resaltarCasilla(fila, col, true);
-	        } else {
-	            lblPiezaSeleccionada.setText("Selecciona una pieza de tu color");
-	        }
-	        return;
+	    			btnUsarHabilidad.setEnabled(true);
+	    			btnUsarHabilidad.setText("USAR: " + piezaEnCasilla.getNombre());
+	    			btnUsarHabilidad.setBackground(Color.ORANGE);
+
+	    		} else if (hayJaque) {
+	    			btnUsarHabilidad.setEnabled(false);
+	    			btnUsarHabilidad.setText("BLOQUEADO (EXPEDIENTE)");
+	    			btnUsarHabilidad.setBackground(Color.GRAY);
+	    		} else {
+	    			btnUsarHabilidad.setEnabled(false);
+	    			btnUsarHabilidad.setText("ACTIVAR PODER");
+	    		}
+
+	    		resaltarCasilla(fila, col, true);
+	    	} else {
+	    		lblPiezaSeleccionada.setText("Selecciona una pieza de tu color");
+	    	}
+	    	return;
 	    }
 
 
@@ -427,14 +437,12 @@ public class PanelTablero extends JFrame {
 	    actualizarLogNormal();
 	    actualizarEstadoJaque();
 	    
-	    // PRIMERO: verificar si la partida ha finalizado (jaque mate o empate)
+	    // Verificar si hay mate o ahogado
 	    if (expulsion.isPartidaFinalizada()) {
 	        domain.Color colorGanador = expulsion.getGanador();
 	        
 	        if (colorGanador != null) {
-	        	// HAY UN GANADOR
 	        	if (colorGanador == domain.Color.BLANCA) {
-	        		// GANAN LAS BLANCAS
 	        		bd.sumarVictoria(jugadorBlanco.getIdJ());
 	        		bd.sumarDerrota(jugadorNegro.getIdJ());
 	        		
@@ -447,7 +455,6 @@ public class PanelTablero extends JFrame {
 		                JOptionPane.INFORMATION_MESSAGE);
 	        		
 	        	} else {
-	        		// GANAN LAS NEGRAS
 	        		bd.sumarVictoria(jugadorNegro.getIdJ());
 	        		bd.sumarDerrota(jugadorBlanco.getIdJ());
 	        		
@@ -460,16 +467,14 @@ public class PanelTablero extends JFrame {
 		                JOptionPane.INFORMATION_MESSAGE);
 	        	}
 	        } else {
-	        	// EMPATE
 	            JOptionPane.showMessageDialog(this, 
 	                "EMPATE\n\nLa partida termina en tablas por ahogado.\nNo se actualizan estadísticas.",
 	                "Empate",
 	                JOptionPane.INFORMATION_MESSAGE);
 	        }
-	        return; // IMPORTANTE: Salir aquí para no mostrar el mensaje de jaque
+	        return;
 	    }
 	    
-	    // SEGUNDO: Si la partida NO ha finalizado, verificar si hay jaque (sin mensaje duplicado)
 	    if (expulsion.estaEnJaque(turnoActual)) {
 	        JOptionPane.showMessageDialog(this, 
 	            "¡EXPEDIENTE!\n\nEl Rector " + turnoActual + " está bajo amenaza.\nDebes protegerlo en tu próximo movimiento.",
@@ -644,6 +649,14 @@ public class PanelTablero extends JFrame {
 	private void ejecutarHabilidadEspecial() {
 		if (piezaSeleccionada == null)
 			return;
+		
+		if (expulsion.estaEnJaque(turnoActual)) {
+	        JOptionPane.showMessageDialog(this, 
+	            "¡No puedes usar habilidades especiales mientras el Rector tiene un Expediente abierto (Jaque)!\n" +
+	            "Debes mover una pieza para proteger al Rector.",
+	            "Acción Bloqueada", JOptionPane.WARNING_MESSAGE);
+	        return;
+	    }
 
 		btnUsarHabilidad.setEnabled(false);
 

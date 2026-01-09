@@ -33,16 +33,32 @@ public class Rector extends Pieza {
 		this.enExpediente = enExpediente; 
 	}
 
-	// === MOVIMIENTO ===
+	
+	// Movimientos validos
 	@Override
 	public boolean movimientoValido(int nuevaFila, int nuevaColumna, Tablero tablero) {
-		int difFila = Math.abs(nuevaFila - this.fila);
-		int difCol = Math.abs(nuevaColumna - this.columna);
-		
-		return (difFila <= 1 && difCol <= 1) && !(difFila == 0 && difCol == 0);
+	    if (nuevaFila < 0 || nuevaFila > 7 || nuevaColumna < 0 || nuevaColumna > 7) {
+	        return false;
+	    }
+
+	    int difFila = Math.abs(nuevaFila - this.fila);
+	    int difCol = Math.abs(nuevaColumna - this.columna);
+	    
+	    boolean movimientoGeometrico = (difFila <= 1 && difCol <= 1) && !(difFila == 0 && difCol == 0);
+	    
+	    if (!movimientoGeometrico) {
+	        return false;
+	    }
+
+	    Pieza piezaDestino = tablero.getCasillas(nuevaFila, nuevaColumna).getPieza();
+	    if (piezaDestino != null && piezaDestino.getColor() == this.color) {
+	        return false;
+	    }
+	    
+	    return true;
 	}
 
-	// === HABILIDAD: REUNIÓN DE URGENCIA ===
+	// Habilidad especial
 	@Override
 	public void usarHabilidad(Tablero tablero) {
 		
@@ -67,14 +83,12 @@ public class Rector extends Pieza {
 				System.out.println("Cerrando facultades...");
 				Thread.sleep(600);
 
-				// === APLICAR EFECTO ===
 				tablero.setReunionUrgencia(true); 
 				
 				haUsadoHabilidad = true;
 
 				System.out.println("¡Reunión convocada!");
 				
-				// Mensaje final
 				String mensaje = "¡REUNIÓN DE URGENCIA!\n"
 						+ "El campus se paraliza.\n"
 						+ "En el siguiente turno, tu rival SOLO podrá mover ALUMNOS.";
