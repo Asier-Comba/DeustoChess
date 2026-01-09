@@ -427,20 +427,14 @@ public class PanelTablero extends JFrame {
 	    actualizarLogNormal();
 	    actualizarEstadoJaque();
 	    
-	    if (expulsion.estaEnJaque(turnoActual) && !expulsion.isPartidaFinalizada()) {
-	        JOptionPane.showMessageDialog(this,
-	            "¡EXPEDIENTE!\nEl Rector " + turnoActual + " está bajo amenaza.\nDebes protegerlo en tu próximo movimiento.",
-	            "¡Expediente al Rector!",
-	            JOptionPane.WARNING_MESSAGE);
-	    }
-	    
+	    // PRIMERO: verificar si la partida ha finalizado (jaque mate o empate)
 	    if (expulsion.isPartidaFinalizada()) {
 	        domain.Color colorGanador = expulsion.getGanador();
 	        
 	        if (colorGanador != null) {
-	        	
+	        	// HAY UN GANADOR
 	        	if (colorGanador == domain.Color.BLANCA) {
-	        		
+	        		// GANAN LAS BLANCAS
 	        		bd.sumarVictoria(jugadorBlanco.getIdJ());
 	        		bd.sumarDerrota(jugadorNegro.getIdJ());
 	        		
@@ -453,6 +447,7 @@ public class PanelTablero extends JFrame {
 		                JOptionPane.INFORMATION_MESSAGE);
 	        		
 	        	} else {
+	        		// GANAN LAS NEGRAS
 	        		bd.sumarVictoria(jugadorNegro.getIdJ());
 	        		bd.sumarDerrota(jugadorBlanco.getIdJ());
 	        		
@@ -465,14 +460,16 @@ public class PanelTablero extends JFrame {
 		                JOptionPane.INFORMATION_MESSAGE);
 	        	}
 	        } else {
+	        	// EMPATE
 	            JOptionPane.showMessageDialog(this, 
 	                "EMPATE\n\nLa partida termina en tablas por ahogado.\nNo se actualizan estadísticas.",
 	                "Empate",
 	                JOptionPane.INFORMATION_MESSAGE);
 	        }
-	        return; 
+	        return; // IMPORTANTE: Salir aquí para no mostrar el mensaje de jaque
 	    }
 	    
+	    // SEGUNDO: Si la partida NO ha finalizado, verificar si hay jaque (sin mensaje duplicado)
 	    if (expulsion.estaEnJaque(turnoActual)) {
 	        JOptionPane.showMessageDialog(this, 
 	            "¡EXPEDIENTE!\n\nEl Rector " + turnoActual + " está bajo amenaza.\nDebes protegerlo en tu próximo movimiento.",

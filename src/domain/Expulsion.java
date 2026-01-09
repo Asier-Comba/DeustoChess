@@ -282,4 +282,4 @@ public class Expulsion {
     public Tablero getTablero() {
         return tablero;
     }
-}	
+}
